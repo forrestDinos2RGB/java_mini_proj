@@ -8,6 +8,7 @@
 package db61b;
 
 // FILL IN (WITH IMPORTS)?
+import java.util.HashMap;
 
 /** A collection of Tables, indexed by name.
  *  @author */
@@ -15,6 +16,7 @@ class Database {
     /** An empty database. */
     public Database() {
         // FILL IN
+        _allTables = new HashMap<>();
     }
 
     /** Return the Table whose name is NAME stored in this database, or null
@@ -33,4 +35,5 @@ class Database {
     }
 
     // FILL IN?
+    HashMap<String, Table> _allTables;
 }
