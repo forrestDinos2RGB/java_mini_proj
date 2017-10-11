@@ -40,8 +40,8 @@ class Table {
         }
 
         // FIXME
-        _titles = null;
-        _columns = null;
+        _titles = columnTitles;
+        _columns = new ValueList[_rowSize];
     }
 
     /** A new Table whose columns are give by COLUMNTITLES. */
@@ -51,30 +51,35 @@ class Table {
 
     /** Return the number of columns in this table. */
     public int columns() {
-        return 0;  // REPLACE WITH SOLUTION
+        return _rowSize;
     }
 
     /** Return the title of the Kth column.  Requires 0 <= K < columns(). */
     public String getTitle(int k) {
-        return null;  // REPLACE WITH SOLUTION
+        return _titles[k];
     }
 
     /** Return the number of the column whose title is TITLE, or -1 if
      *  there isn't one. */
     public int findColumn(String title) {
-        return -1;  // REPLACE WITH SOLUTION
+        for (int i = 0; i < columns(); i++) {
+            if (_titles[i].equals(title)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /** Return the number of rows in this table. */
     public int size() {
-        return 0;  // REPLACE WITH SOLUTION
+        return _size;
     }
 
     /** Return the value of column number COL (0 <= COL < columns())
      *  of record number ROW (0 <= ROW < size()). */
     public String get(int row, int col) {
         try {
-            return null; // REPLACE WITH SOLUTION
+            return _columns[col].get(row);
         } catch (IndexOutOfBoundsException excp) {
             throw error("invalid row or column");
         }
