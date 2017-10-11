@@ -38,8 +38,6 @@ class Table {
                 }
             }
         }
-
-        // FIXME
         _titles = columnTitles;
         _columns = new ValueList[_rowSize];
     }
@@ -89,7 +87,41 @@ class Table {
      *  row already exists.  Return true if anything was added,
      *  false otherwise. */
     public boolean add(String[] values) {
-        return false;   // REPLACE WITH SOLUTION
+        //first check if row is unique
+        //determine where new row should go
+        boolean rowIsUnique = false;
+        for (int c = 0; c < _columns.length; c++) {
+            rowIsUnique = false;
+            for (int r = 0; r < _columns[r].size(); r++) {
+                if (!get(r, c).equals(values[r])) {
+                    rowIsUnique = true;
+                    break;
+                }
+            }
+        }
+        //if row is unique, then insert it at the end
+        if (rowIsUnique) {
+            addUniqueRow(values);
+            positionNewRow(size() -1);
+        }
+        //determine the position of the row in the ArrayList
+        return false;
+    }
+    /** Adds a new unique row of values */
+    public void addUniqueRow(String[] values) {
+        for (int c = 0; c < _columns.length; c++) {
+            _columns[c].add(values[c]);
+            _size += 1;
+        }
+    }
+
+    /** repositions new row in the index ArrayList to keep the rows sorted. */
+    public void positionNewRow(int r) {
+        for (int i = 0; i < _index.size(); i++) {
+            if (compareRows(r,_index.get(i)) < 0) {
+                _index.add(i, r);
+            }
+        }
     }
 
     /** Add a new row whose column values are extracted by COLUMNS from

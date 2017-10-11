@@ -22,7 +22,7 @@ class Database {
     /** Return the Table whose name is NAME stored in this database, or null
      *  if there is no such table. */
     public Table get(String name) {
-        return null;             // REPLACE WITH SOLUTION
+        return _allTables.get(name);
     }
 
     /** Set or replace the table named NAME in THIS to TABLE.  TABLE and
@@ -31,9 +31,9 @@ class Database {
         if (name == null || table == null) {
             throw new IllegalArgumentException("null argument");
         }
-        // FILL IN
+        _allTables.put(name, table);
     }
 
     // FILL IN?
-    HashMap<String, Table> _allTables;
+    private HashMap<String, Table> _allTables;
 }
