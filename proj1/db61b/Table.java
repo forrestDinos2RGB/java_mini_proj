@@ -40,6 +40,9 @@ class Table {
         }
         _titles = columnTitles;
         _columns = new ValueList[_rowSize];
+        for (int c = 0; c < _rowSize; c++) {
+            _columns[c] = new ValueList();
+        }
     }
 
     /** A new Table whose columns are give by COLUMNTITLES. */
@@ -87,38 +90,50 @@ class Table {
      *  row already exists.  Return true if anything was added,
      *  false otherwise. */
     public boolean add(String[] values) {
-        //first check if row is unique
-        //determine where new row should go
-        boolean rowIsUnique = true;
-        for (int c = 0; c < _columns.length; c++) {
-            for (int r = 0; r < _columns[r].size(); r++) {
-                if (!get(r,c).equals(values[r])) {
-                    break;
-                }
-            }
-            rowIsUnique = false;
-        }
-        //if row is unique, then insert it at the end
-        if (rowIsUnique) {
+        /* if table is empty */
+        if (_columns[0].size() == 0) {
             addUniqueRow(values);
             positionNewRow(size() -1);
+            return true;
         }
+        /* have at least 1 row */
+        for (int r = 0; r < size(); r++) {
+            if (identicalRow(values, r)) {
+                return false;
+            }
+        }
+        addUniqueRow(values);
+        positionNewRow(size() -1);
         //determine the position of the row in the ArrayList
-        return false;
+        return true;
+    }
+    /** Compares a string[] VALUES against _column[R][k] for k between 0 and rowSize */
+    public boolean identicalRow(String[] values, int r) {
+        for (int c = 0; c < _columns.length; c++) {
+            if (!get(r, c).equals(values[c])) {
+                return false;
+            }
+        }
+        return true;
     }
     /** Adds a new unique row of values */
     public void addUniqueRow(String[] values) {
         for (int c = 0; c < _columns.length; c++) {
             _columns[c].add(values[c]);
-            _size += 1;
         }
+        _size += 1;
     }
 
     /** repositions new row in the index ArrayList to keep the rows sorted. */
     public void positionNewRow(int r) {
+        if (_index.size() == 0) {
+            _index.add(r);
+            return;
+        }
         for (int i = 0; i < _index.size(); i++) {
             if (compareRows(r,_index.get(i)) < 0) {
                 _index.add(i, r);
+                break;
             }
         }
     }
@@ -129,7 +144,11 @@ class Table {
      *  Column.getFrom(Integer...) for a description of how Columns
      *  extract values. */
     public boolean add(List<Column> columns, Integer... rows) {
-        return false;   // REPLACE WITH SOLUTION
+        String[] values = new String[columns.size()];
+        for (int i = 0; i < columns.size(); i++) {
+            values[i] = columns.get(i).getFrom(rows);
+        }
+        return add(values);
     }
 
     /** Read the contents of the file NAME.db, and return as a Table.
@@ -185,7 +204,18 @@ class Table {
     /** Print my contents on the standard output, separated by spaces
      *  and indented by two spaces. */
     void print() {
-        // FILL IN
+        if (_size == 0) {
+            return;
+        }
+        String indent = "  ";
+        String start = "";
+        for (int r = 0; r < _size; r++) {
+            String beg = indent;
+            for (int c = 0; c < _columns.length; c++) {
+                beg = beg + _columns[c].get(r) + " ";
+            }
+            System.out.println(beg);
+        }
     }
 
     /** Return a new Table whose columns are COLUMNNAMES, selected from
