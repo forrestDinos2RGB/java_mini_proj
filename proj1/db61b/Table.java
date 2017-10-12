@@ -133,9 +133,10 @@ class Table {
         for (int i = 0; i < _index.size(); i++) {
             if (compareRows(r,_index.get(i)) < 0) {
                 _index.add(i, r);
-                break;
+                return;
             }
         }
+        _index.add(r);
     }
 
     /** Add a new row whose column values are extracted by COLUMNS from
@@ -212,7 +213,7 @@ class Table {
         for (int r = 0; r < _size; r++) {
             String beg = indent;
             for (int c = 0; c < _columns.length; c++) {
-                beg = beg + _columns[c].get(r) + " ";
+                beg = beg + _columns[c].get(_index.get(r)) + " ";
             }
             System.out.println(beg);
         }

@@ -18,4 +18,17 @@ public class testTable {
         companyInfo.print();
     }
 
+    @Test
+    public void TestPrint() {
+        String[] colTitles = {"Company Name", "Product Description", "Position Description"};
+        String[] comp1 = {"Rubrik", "data storage", "zew"};
+        String[] comp2 = {"Rubrik", "data storage", "oew"};
+        String[] comp3 = {"Rubrik", "data storage", "aow"};
+        Table companyInfo = new Table(colTitles);
+        assertTrue(companyInfo.add(comp1));
+        assertTrue(companyInfo.add(comp2));
+        assertTrue(companyInfo.add(comp3));
+        companyInfo.print();
+    }
+
 }

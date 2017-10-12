@@ -167,6 +167,7 @@ class CommandInterpreter {
         String name = name();
         Table table = tableDefinition();
         // FILL IN CODE TO EXECUTE THE STATEMENT
+        _database.put(name, table);
         _input.next(";");
     }
 
@@ -235,11 +236,16 @@ class CommandInterpreter {
     Table tableDefinition() {
         Table table;
         if (_input.nextIf("(")) {
-            // REPLACE WITH SOLUTION
-            table = null;
+            //REPLACE WITH SOLUTION
+            ArrayList<String> values = new ArrayList<>();
+            while (!_input.peek().equals(")")) {
+                values.add(name());
+            }
+            table = new Table(values);
         } else {
             // REPLACE WITH SOLUTION
-            table = null;
+            _input.next("as");
+            table = selectClause();
         }
         return table;
     }
