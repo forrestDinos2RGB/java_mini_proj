@@ -162,11 +162,19 @@ class Table {
         try {
             input = new BufferedReader(new FileReader(name + ".db"));
             String header = input.readLine();
+            String nextLine;
+            String[] nextRow;
             if (header == null) {
                 throw error("missing header in DB file");
             }
             String[] columnNames = header.split(",");
             // FILL IN
+            table = new Table(columnNames);
+            while ((nextLine = input.readLine()) != null) {
+                nextRow = nextLine.trim().split(",");
+                table.add(nextRow);
+            }
+
         } catch (FileNotFoundException e) {
             throw error("could not find %s.db", name);
         } catch (IOException e) {
@@ -193,6 +201,17 @@ class Table {
             sep = "";
             output = new PrintStream(name + ".db");
             // FILL THIS IN
+            for (int r = 0; r < _columns[0].size(); r++) {
+                for (int c = 0; c < size(); c++) {
+                    if (c == 0) {
+                        sep += get(r, c);
+                    } else {
+                        sep = sep + "," + get(r,c);
+                    }
+                }
+                output.println(sep);
+                sep = "";
+            }
         } catch (IOException e) {
             throw error("trouble writing to %s.db", name);
         } finally {
