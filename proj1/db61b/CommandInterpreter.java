@@ -210,6 +210,10 @@ class CommandInterpreter {
     /** Parse and execute a load statement from the token stream. */
     void loadStatement() {
         // FILL THIS IN
+        _input.next("load");
+        String name = _input.peek();
+        Table table = Table.readTable(name);
+        _database.put(name, table);
     }
 
     /** Parse and execute a store statement from the token stream. */
@@ -218,6 +222,7 @@ class CommandInterpreter {
         String name = _input.peek();
         Table table = tableName();
         // FILL THIS IN
+        table.writeTable(name);
         System.out.printf("Stored %s.db%n", name);
         _input.next(";");
     }
