@@ -89,15 +89,14 @@ class Table {
     public boolean add(String[] values) {
         //first check if row is unique
         //determine where new row should go
-        boolean rowIsUnique = false;
+        boolean rowIsUnique = true;
         for (int c = 0; c < _columns.length; c++) {
-            rowIsUnique = false;
             for (int r = 0; r < _columns[r].size(); r++) {
-                if (!get(r, c).equals(values[r])) {
-                    rowIsUnique = true;
+                if (!get(r,c).equals(values[r])) {
                     break;
                 }
             }
+            rowIsUnique = false;
         }
         //if row is unique, then insert it at the end
         if (rowIsUnique) {
