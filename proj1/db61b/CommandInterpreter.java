@@ -194,6 +194,10 @@ class CommandInterpreter {
             int k;
             _input.next("(");
             // FILL THIS IN
+            k = 0;
+            while (k < cols) {
+                values[k] = _input.next(Tokenizer.LITERAL);
+            }
             _input.next(")");
             table.add(values);
             if (!_input.nextIf(",")) {
@@ -221,6 +225,9 @@ class CommandInterpreter {
     /** Parse and execute a print statement from the token stream. */
     void printStatement() {
         // FILL THIS IN
+        _input.next("print");
+        tableName().print();
+        _input.next(";");
     }
 
     /** Parse and execute a select statement from the token stream. */
