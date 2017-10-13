@@ -9,6 +9,8 @@ package db61b;
 
 import java.util.List;
 
+import static db61b.Utils.error;
+
 /** Represents a single 'where' condition in a 'select' command.
  *  @author */
 class Condition {
@@ -18,6 +20,9 @@ class Condition {
      *  strings "<", ">", "<=", ">=", "=", or "!=". */
     Condition(Column col1, String relation, Column col2) {
         // YOUR CODE HERE
+        _col1 = col1;
+        _col2 = col2;
+        _relation = relation;
     }
 
     /** A Condition representing COL1 RELATION 'VAL2', where COL1 is
@@ -35,7 +40,37 @@ class Condition {
      *  performing the test I denote. */
     boolean test(Integer... rows) {
         // REPLACE WITH SOLUTION
-        return false;
+        //compareTo returns < 0 if THIS string is lexicographically less than the argument string
+        boolean condMet;
+        int compare;
+        if (_col2 == null) {
+            compare = _col1.getFrom(rows).compareTo(_val2);
+        } else {
+            compare = _col1.getFrom(rows).compareTo(_col2.getFrom(rows));
+        }
+        switch(_relation) {
+            case "<":
+                condMet = compare < 0;
+                break;
+            case "=":
+                condMet = compare == 0;
+                break;
+            case ">":
+                condMet = compare > 0;
+                break;
+            case "!=":
+                condMet = compare != 0;
+                break;
+            case "<=":
+                condMet = (compare < 0) || (compare == 0);
+                break;
+            case ">=":
+                condMet = (compare > 0) || (compare == 0);
+                break;
+            default:
+                throw error("unrecognizable comparison symbol");
+        }
+        return condMet;
     }
 
     /** Return true iff ROWS satisfies all CONDITIONS. */
@@ -54,4 +89,6 @@ class Condition {
     /** Second operand, if literal (otherwise null). */
     private String _val2;
     // ADD ADDITIONAL FIELDS HERE
+    /** Conditional of relation. */
+    private String _relation;
 }

@@ -196,7 +196,7 @@ class CommandInterpreter {
             // FILL THIS IN
             k = 0;
             while (k < cols) {
-                values[k] = _input.next(Tokenizer.LITERAL);
+                values[k] = literal();
             }
             _input.next(")");
             table.add(values);
@@ -251,7 +251,7 @@ class CommandInterpreter {
             //REPLACE WITH SOLUTION
             ArrayList<String> values = new ArrayList<>();
             while (!_input.peek().equals(")")) {
-                values.add(name());
+                values.add(columnName());
             }
             table = new Table(values);
         } else {

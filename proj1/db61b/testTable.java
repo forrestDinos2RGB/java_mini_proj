@@ -31,4 +31,14 @@ public class testTable {
         companyInfo.print();
     }
 
+    @Test
+    public void TestRegex() {
+        String input = "5.001";
+        String inputOne = "0";
+        String regex = "\\d.*";
+        assertTrue(input.matches(regex));
+        assertTrue(inputOne.matches(regex));
+
+    }
+
 }
