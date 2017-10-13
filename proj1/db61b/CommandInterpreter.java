@@ -211,9 +211,11 @@ class CommandInterpreter {
     void loadStatement() {
         // FILL THIS IN
         _input.next("load");
-        String name = _input.peek();
+        String name = name();
         Table table = Table.readTable(name);
         _database.put(name, table);
+        System.out.printf("loaded %s.db%n", name);
+        _input.next(";");
     }
 
     /** Parse and execute a store statement from the token stream. */
@@ -265,8 +267,36 @@ class CommandInterpreter {
     /** Parse and execute a select clause from the token stream, returning the
      *  resulting table. */
     Table selectClause() {
-        return null;         // REPLACE WITH SOLUTION
-
+        //1. one other table
+        //2. if it ends in ;
+        ArrayList<Table> tables = new ArrayList<>();
+        ArrayList<String> columnNames = new ArrayList<>();
+        _input.next("select");
+        columnNames.add(columnName());
+        while (_input.nextIf(",")) {
+            String currCol = columnName();
+            columnNames.add(currCol);
+        }
+        _input.next("from");
+        tables.add(tableName());
+        //check if next input ends in semi colon
+        if (_input.nextIf(";")) {
+            //case 1: table1
+            return null;
+        } else if (_input.nextIf("where")) {
+            //case 2: table 1 where ...
+        } else {
+            //case 3: table1, table2
+            //case 4: table1, table2 where ...
+            _input.next(",");
+            tables.add(tableName());
+            if (_input.nextIf(";")) {
+                //case 3
+            } else {
+                //case 4
+            }
+        }
+        return null;
     }
 
     /** Parse and return a valid name (identifier) from the token stream. */
