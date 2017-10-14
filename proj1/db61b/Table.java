@@ -247,25 +247,45 @@ class Table {
         }
     }
 
+
     /** Return a new Table whose columns are COLUMNNAMES, selected from
      *  rows of this table that satisfy CONDITIONS. */
     Table select(List<String> columnNames, List<Condition> conditions) {
         Table result = new Table(columnNames);
+        List<Column> selectedColumns = createColumnsFromNames(columnNames, this);
         if (conditions == null) {
+            for (int r = 0; r < size(); r++) {
+                result.add(selectedColumns, r);
+            }
+        } else {
+            //case 2: single table with conditions
+            for (int r = 0; r < size(); r++) {
+                if (shouldAddRow(conditions, r)) {
+                    result.add(selectedColumns, r);
+                }
+            }
         }
-        return null;
+        return result;
     }
 
+    /** creates and return a list of column objects from tables. **/
+    List<Column> createColumnsFromNames(List<String> columnNames, Table ... tables) {
+        ArrayList<Column> columnObjects = new ArrayList<>();
+        for (int i = 0; i < columnNames.size(); i++) {
+            columnObjects.add(new Column(columnNames.get(i), tables));
+        }
+        return columnObjects;
+    }
 
-//    /** Returns if a given columns satisfies all of the conditions */
-//    boolean shouldAddRow(List<Condition> conditions, int row) {
-//        for (Condition cond: conditions) {
-//            if (!cond.test(row)) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
+    /** Returns if a given columns satisfies all of the conditions */
+    boolean shouldAddRow(List<Condition> conditions, int row) {
+        for (Condition cond: conditions) {
+            if (!cond.test(row)) {
+                return false;
+            }
+        }
+        return true;
+    }
 //
 //    /** Retrieves a row from the table */
 //    String[] getRow(int row) {
