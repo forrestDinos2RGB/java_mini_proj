@@ -29,6 +29,8 @@ public class testTable {
         assertTrue(companyInfo.add(comp2));
         assertTrue(companyInfo.add(comp3));
         companyInfo.print();
+
+        companyInfo.writeTable("CompanyInfo");
     }
 
     @Test

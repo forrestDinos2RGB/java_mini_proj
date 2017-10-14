@@ -201,6 +201,15 @@ class Table {
             sep = "";
             output = new PrintStream(name + ".db");
             // FILL THIS IN
+            for (int i = 0; i < _titles.length; i++) {
+                if (i == 0) {
+                    sep += _titles[i];
+                } else {
+                    sep = sep + ","+ _titles[i];
+                }
+            }
+            output.println(sep);
+            sep = "";
             for (int r = 0; r < _columns[0].size(); r++) {
                 for (int c = 0; c < size(); c++) {
                     if (c == 0) {
@@ -243,8 +252,50 @@ class Table {
     Table select(List<String> columnNames, List<Condition> conditions) {
         Table result = new Table(columnNames);
         // FILL IN
+        String[] rowValues;
+        String[] condRowValues = new String[columnNames.size()];
+        for (int r = 0; r < size(); r++) {
+            if (shouldAddRow(conditions, r)) {
+                //add conditioned row to result
+                result.add(getCondRow(r, columnNames));
+            }
+        }
         return result;
     }
+
+    /** Returns if a given columns satisfies all of the conditions */
+    boolean shouldAddRow(List<Condition> conditions, int row) {
+        for (Condition cond: conditions) {
+            if (!cond.test(row)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Retrieves a row from the table */
+    String[] getRow(int row) {
+        String[] rowValues = new String[columns()];
+        for (int c = 0; c < columns(); c++) {
+            rowValues[c] = _columns[c].get(row);
+        }
+        return rowValues;
+    }
+
+    /** Retrieves conditioned row from the table */
+    String[] getCondRow(int row, List<String> columnNames) {
+        String[] rowValues = new String[columns()];
+        String[] condRowValues = new String[columnNames.size()];
+        for (int c = 0; c < columns(); c++) {
+            rowValues[c] = _columns[c].get(row);
+        }
+
+        for (int i = 0; i < columnNames.size(); i++) {
+            condRowValues[i] = get(row, findColumn(columnNames.get(i)));
+        }
+        return condRowValues;
+    }
+
 
     /** Return a new Table whose columns are COLUMNNAMES, selected
      *  from pairs of rows from this table and from TABLE2 that match

@@ -230,6 +230,7 @@ class CommandInterpreter {
     }
 
     /** Parse and execute a print statement from the token stream. */
+    /** Parse and execute a print statement from the token stream. */
     void printStatement() {
         // FILL THIS IN
         _input.next("print");
@@ -267,10 +268,12 @@ class CommandInterpreter {
     /** Parse and execute a select clause from the token stream, returning the
      *  resulting table. */
     Table selectClause() {
-        //1. one other table
-        //2. if it ends in ;
-        ArrayList<Table> tables = new ArrayList<>();
+        Table table1;
+        Table table2;
+        Table table = null;
         ArrayList<String> columnNames = new ArrayList<>();
+        ArrayList<Condition> conditions = null;
+
         _input.next("select");
         columnNames.add(columnName());
         while (_input.nextIf(",")) {
@@ -278,25 +281,31 @@ class CommandInterpreter {
             columnNames.add(currCol);
         }
         _input.next("from");
-        tables.add(tableName());
-        //check if next input ends in semi colon
+        table1 = tableName();
+        //token past first table
         if (_input.nextIf(";")) {
-            //case 1: table1
-            return null;
+            table = table1.select(columnNames, conditions);
         } else if (_input.nextIf("where")) {
-            //case 2: table 1 where ...
+            //single table select
+            //case 2: table 1 where <condition1> and ...
+            conditions = conditionClause(table1);
+            table = table1.select(columnNames, conditions);
         } else {
             //case 3: table1, table2
             //case 4: table1, table2 where ...
             _input.next(",");
-            tables.add(tableName());
+            table2 = tableName();
             if (_input.nextIf(";")) {
                 //case 3
+                table = table1.select(columnNames, conditions);
+
             } else {
                 //case 4
+                conditions = conditionClause();
+                table = table1.select(table2, columnNames, conditions);
             }
         }
-        return null;
+        return table;
     }
 
     /** Parse and return a valid name (identifier) from the token stream. */
@@ -333,13 +342,26 @@ class CommandInterpreter {
      *  token stream.  This denotes the conjunction (`and') of zero
      *  or more Conditions. */
     ArrayList<Condition> conditionClause(Table... tables) {
-        return null;        // REPLACE WITH SOLUTION
+        ArrayList<Condition> conditions = new ArrayList<>();
+        conditions.add(condition(tables));
+        while(_input.nextIf("and")) {
+            conditions.add(condition(tables));
+        }
+        return conditions;
     }
 
     /** Parse and return a Condition that applies to TABLES from the
      *  token stream. */
     Condition condition(Table... tables) {
-        return null;        // REPLACE WITH SOLUTION
+        Column col1 = new Column(columnName(), tables);
+        String rel = _input.next(Tokenizer.RELATION);
+        Column col2;
+        if (_input.nextIs(Tokenizer.LITERAL)) {
+            return new Condition(col1, rel, literal());
+        } else {
+            col2 = new Column(columnName(), tables);
+            return new Condition(col1, rel, col2);
+        }
     }
 
     /** Advance the input past the next semicolon. */
