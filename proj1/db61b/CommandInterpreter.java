@@ -270,7 +270,6 @@ class CommandInterpreter {
     Table selectClause() {
         Table table1;
         Table table2;
-        Table table = null;
         ArrayList<String> columnNames = new ArrayList<>();
         ArrayList<Condition> conditions = null;
 
@@ -283,29 +282,20 @@ class CommandInterpreter {
         _input.next("from");
         table1 = tableName();
         //token past first table
-        if (_input.nextIf(";")) {
-            table = table1.select(columnNames, conditions);
-        } else if (_input.nextIf("where")) {
-            //single table select
-            //case 2: table 1 where <condition1> and ...
-            conditions = conditionClause(table1);
-            table = table1.select(columnNames, conditions);
-        } else {
-            //case 3: table1, table2
-            //case 4: table1, table2 where ...
-            _input.next(",");
+        if (_input.nextIf(",")) {
+            //two table select
             table2 = tableName();
-            if (_input.nextIf(";")) {
-                //case 3
-                table = table1.select(columnNames, conditions);
-
-            } else {
-                //case 4
+            if (_input.nextIf("where")) {
                 conditions = conditionClause(table1, table2);
-                table = table1.select(table2, columnNames, conditions);
             }
+            return table1.select(table2, columnNames, conditions);
+        } else {
+            //single table select
+            if (_input.nextIf("where")) {
+                conditions = conditionClause(table1);
+            }
+            return table1.select(columnNames, conditions);
         }
-        return table;
     }
 
     /** Parse and return a valid name (identifier) from the token stream. */
