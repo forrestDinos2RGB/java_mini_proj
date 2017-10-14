@@ -301,7 +301,7 @@ class CommandInterpreter {
 
             } else {
                 //case 4
-                conditions = conditionClause();
+                conditions = conditionClause(table1, table2);
                 table = table1.select(table2, columnNames, conditions);
             }
         }
