@@ -330,7 +330,16 @@ class Table {
      *  into those tables. */
     private static boolean equijoin(List<Column> common1, List<Column> common2,
                                     int row1, int row2) {
-        return true; // REPLACE WITH SOLUTION
+        Column leftCol;
+        Column rightCol;
+        for (int i = 0; i < common1.size(); i++) {
+            leftCol = common1.get(i);
+            rightCol = common2.get(i);
+            if (!leftCol.getFrom(row1).equals(rightCol.getFrom(row2))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** A class that is essentially ArrayList<String>.  For technical reasons,
