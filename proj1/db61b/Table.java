@@ -286,30 +286,6 @@ class Table {
         }
         return true;
     }
-//
-//    /** Retrieves a row from the table */
-//    String[] getRow(int row) {
-//        String[] rowValues = new String[columns()];
-//        for (int c = 0; c < columns(); c++) {
-//            rowValues[c] = _columns[c].get(row);
-//        }
-//        return rowValues;
-//    }
-//
-//    /** Retrieves conditioned row from the table */
-//    String[] getCondRow(int row, List<String> columnNames) {
-//        String[] rowValues = new String[columns()];
-//        String[] condRowValues = new String[columnNames.size()];
-//        for (int c = 0; c < columns(); c++) {
-//            rowValues[c] = _columns[c].get(row);
-//        }
-//
-//        for (int i = 0; i < columnNames.size(); i++) {
-//            condRowValues[i] = get(row, findColumn(columnNames.get(i)));
-//        }
-//        return condRowValues;
-//    }
-
 
     /** Return a new Table whose columns are COLUMNNAMES, selected
      *  from pairs of rows from this table and from TABLE2 that match
@@ -317,8 +293,41 @@ class Table {
     Table select(Table table2, List<String> columnNames,
                  List<Condition> conditions) {
         Table result = new Table(columnNames);
-        // FILL IN
+        List<String> commonColumns = this.getCommonColumns(table2);
+        List<Column> common1 = createColumnsFromNames(commonColumns, this);
+        List<Column> common2 = createColumnsFromNames(commonColumns, table2);
+        List<Column> selectedColumns = createColumnsFromNames(columnNames, this, table2);
+        for (int r1 = 0; r1 < this.size(); r1 += 1) {
+            for (int r2 = 0; r2 < table2.size(); r2 += 1) {
+                if (equijoin(common1, common2, r1, r2)) {
+                    if (Condition.test(conditions, r1, r2)) {
+                        result.add(selectedColumns, r1, r2);
+                    }
+                }
+            }
+        }
+        if (result.size() == 0) {
+            //combine everything and return that table
+            for (int r1 = 0; r1 < this.size(); r1 += 1) {
+                for (int r2 = 0; r2 < table2.size(); r2 += 1) {
+                    result.add(selectedColumns, r1, r2);
+                }
+            }
+        }
         return result;
+    }
+
+    /** Creates a table from the selected Column names of TABLE2, TABLE1, ROW1, ROW2 **/
+
+    /** Creates a helper function that returns common columnNames between two tables **/
+    public List<String> getCommonColumns(Table table2) {
+        ArrayList<String> commonColumns = new ArrayList<>();
+        for (String columnName: _titles) {
+            if (table2.findColumn(columnName) != -1) {
+                commonColumns.add(columnName);
+            }
+        }
+        return commonColumns;
     }
 
     /** Return <0, 0, or >0 depending on whether the row formed from
