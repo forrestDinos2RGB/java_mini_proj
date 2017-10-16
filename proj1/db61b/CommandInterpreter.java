@@ -271,7 +271,7 @@ class CommandInterpreter {
         Table table1;
         Table table2;
         ArrayList<String> columnNames = new ArrayList<>();
-        ArrayList<Condition> conditions = null;
+        ArrayList<Condition> conditions = new ArrayList<>();
 
         _input.next("select");
         columnNames.add(columnName());

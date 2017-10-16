@@ -253,7 +253,7 @@ class Table {
     Table select(List<String> columnNames, List<Condition> conditions) {
         Table result = new Table(columnNames);
         List<Column> selectedColumns = createColumnsFromNames(columnNames, this);
-        if (conditions == null) {
+        if (conditions.size() == 0) {
             for (int r = 0; r < size(); r++) {
                 result.add(selectedColumns, r);
             }
@@ -299,25 +299,33 @@ class Table {
         List<Column> selectedColumns = createColumnsFromNames(columnNames, this, table2);
         for (int r1 = 0; r1 < this.size(); r1 += 1) {
             for (int r2 = 0; r2 < table2.size(); r2 += 1) {
-                if (equijoin(common1, common2, r1, r2)) {
-                    if (Condition.test(conditions, r1, r2)) {
+                //If there are common column names at all
+                if (commonColumns.size() > 0) {
+                    if (equijoin(common1, common2, r1, r2)) {
+                        if (conditions.size() == 0) {
+                            result.add(selectedColumns, r1, r2);
+                        } else if (Condition.test(conditions, r1, r2)) {
+                            result.add(selectedColumns, r1, r2);
+                        }
+                    }
+                } else {
+                    if (conditions.size() == 0) {
+                        result.add(selectedColumns, r1, r2);
+                    } else if (Condition.test(conditions, r1, r2)) {
                         result.add(selectedColumns, r1, r2);
                     }
-                }
-            }
-        }
-        if (result.size() == 0) {
-            //combine everything and return that table
-            for (int r1 = 0; r1 < this.size(); r1 += 1) {
-                for (int r2 = 0; r2 < table2.size(); r2 += 1) {
-                    result.add(selectedColumns, r1, r2);
                 }
             }
         }
         return result;
     }
 
-    /** Creates a table from the selected Column names of TABLE2, TABLE1, ROW1, ROW2 **/
+    /** Adds a row from selected Columns applying CONDITIONS WHERE necessary, otherwise simply
+     *  add the row. This is a helper method written to condense the code inside of two table
+     *  select. It checks first if there are any conditions, if not, row is automatically added.
+     */
+    static public void addRoWTwoTableSelect(Table table, List<Column> selectedColumns) {
+    }
 
     /** Creates a helper function that returns common columnNames between two tables **/
     public List<String> getCommonColumns(Table table2) {
