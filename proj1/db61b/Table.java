@@ -294,8 +294,10 @@ class Table {
                  List<Condition> conditions) {
         Table result = new Table(columnNames);
         List<String> commonColumns = this.getCommonColumns(table2);
+        //create columns from common names
         List<Column> common1 = createColumnsFromNames(commonColumns, this);
         List<Column> common2 = createColumnsFromNames(commonColumns, table2);
+        //create columns from selected Column values
         List<Column> selectedColumns = createColumnsFromNames(columnNames, this, table2);
         for (int r1 = 0; r1 < this.size(); r1 += 1) {
             for (int r2 = 0; r2 < table2.size(); r2 += 1) {
