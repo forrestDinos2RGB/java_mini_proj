@@ -48,7 +48,7 @@ class Game {
             }
 
             // FIXME
-
+            //_board.checkGameOver();
             while (_state != SETUP && !_board.gameOver()) {
                 Move move;
                 move = null; // FIXME

@@ -23,7 +23,6 @@ class Board extends Observable {
 
     /** A new, cleared board at the start of the game. */
     Board() {
-        // FIXME?
         clear();
     }
 
@@ -104,6 +103,11 @@ class Board extends Observable {
      *  no moves. */
     boolean gameOver() {
         return _gameOver;
+    }
+
+    /** update _gameOver to either true or false **/
+    public void updateGameOver() {
+        //FIXME!
     }
 
     /** Return the current contents of square C R, where 'a' <= C <= 'e',
