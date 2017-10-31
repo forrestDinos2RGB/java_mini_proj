@@ -55,7 +55,8 @@ class Board extends Observable {
 
     /** Copy B into me. */
     private void internalCopy(Board b) {
-        this._whoseMove = b._whoseMove;
+        //this._whoseMove = b._whoseMove;
+        setWhoseMove(b.whoseMove());
         this._gameOver = b._gameOver;
         this._allPieces = b._allPieces;
     }
@@ -76,7 +77,8 @@ class Board extends Observable {
             throw new IllegalArgumentException("bad board description");
         }
 
-        this._whoseMove = nextMove;
+        //this._whoseMove = nextMove;
+        setWhoseMove(nextMove);
 
         for (int k = 0; k < str.length(); k += 1) {
             switch (str.charAt(k)) {
@@ -212,6 +214,11 @@ class Board extends Observable {
      *  value is arbitrary if gameOver(). */
     PieceColor whoseMove() {
         return _whoseMove;
+    }
+
+    /** sets _whoseMove to PieceColor WHO. **/
+    void setWhoseMove(PieceColor who) {
+        _whoseMove = who;
     }
 
     /** Perform the move C0R0-C1R1, or pass if C0 is '-'.  For moves

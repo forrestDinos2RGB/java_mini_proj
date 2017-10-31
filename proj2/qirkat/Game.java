@@ -127,7 +127,12 @@ class Game {
     /** Perform the command 'auto OPERANDS[0]'. */
     void doAuto(String[] operands) {
         _state = SETUP;
-        // FIXME
+        String who = PieceColor.capitalize(operands[0].toLowerCase());
+        if (who.equals("White")) {
+            _whiteIsManual = false;
+        } else {
+            _blackIsManual = false;
+        }
     }
 
     /** Perform a 'help' command. */
@@ -167,7 +172,14 @@ class Game {
     /** Perform the command 'manual OPERANDS[0]'. */
     void doManual(String[] operands) {
         _state = SETUP;
-
+        //what does operands[0] look like, "black" or Black"
+        //Assume 'Black', and 'White'
+        String who = PieceColor.capitalize(operands[0].toLowerCase());
+        if (who.equals("White")) {
+            _whiteIsManual = true;
+        } else {
+            _blackIsManual = true;
+        }
     }
 
     /** Exit the program. */
@@ -195,12 +207,15 @@ class Game {
     void doClear(String[] unused) {
         _state = SETUP;
         _board.clear();
+        //after clear command, white is manual and black is AI
+        _whiteIsManual = true;
+        _blackIsManual = false;
 
     }
 
     /** Perform the command 'set OPERANDS[0] OPERANDS[1]'. */
     void doSet(String[] operands) {
-        _board.setPieces(operands[1], PieceColor.toType(operands[0]));
+        _board.setPieces(operands[1], PieceColor.toType(operands[0].toLowerCase()));
     }
 
     /** Perform the command 'dump'. */
