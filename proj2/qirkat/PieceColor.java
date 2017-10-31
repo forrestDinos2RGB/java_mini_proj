@@ -47,6 +47,12 @@ enum PieceColor {
         return this == BLACK ? "b" : this == WHITE ? "w" : "-";
     }
 
+    /** Return the piece color given associated String, NAME. **/
+    public static PieceColor toType(String name) {
+        name = capitalize(name);
+        return name.equals("White") ? WHITE : name.equals("black") ? BLACK : EMPTY;
+    }
+
     @Override
     public String toString() {
         return capitalize(super.toString().toLowerCase());

@@ -167,7 +167,7 @@ class Game {
     /** Perform the command 'manual OPERANDS[0]'. */
     void doManual(String[] operands) {
         _state = SETUP;
-        // FIXME
+
     }
 
     /** Exit the program. */
@@ -193,7 +193,6 @@ class Game {
 
     /** Perform the command 'clear'. */
     void doClear(String[] unused) {
-        // FIXME
         _state = SETUP;
         _board.clear();
 
@@ -201,8 +200,7 @@ class Game {
 
     /** Perform the command 'set OPERANDS[0] OPERANDS[1]'. */
     void doSet(String[] operands) {
-        PieceColor who = operands[0].equals("white") ? WHITE : operands[0].equals("black") ? BLACK : EMPTY;
-        _board.setPieces(operands[1], who);
+        _board.setPieces(operands[1], PieceColor.toType(operands[0]));
     }
 
     /** Perform the command 'dump'. */
