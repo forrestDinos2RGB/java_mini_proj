@@ -23,6 +23,7 @@ class Board extends Observable {
 
     /** A new, cleared board at the start of the game. */
     Board() {
+        _allPieces = new PieceColor[Move.SIDE * Move.SIDE];
         clear();
     }
 
@@ -40,10 +41,8 @@ class Board extends Observable {
     /** Clear me to my starting state, with pieces in their initial
      *  positions. */
     void clear() {
-        _whoseMove = WHITE;
+        setPieces(clearedBoard, WHITE);
         _gameOver = false;
-
-        // FIXME
 
         setChanged();
         notifyObservers();
@@ -56,7 +55,9 @@ class Board extends Observable {
 
     /** Copy B into me. */
     private void internalCopy(Board b) {
-        // FIXME
+        this._whoseMove = b._whoseMove;
+        this._gameOver = b._gameOver;
+        this._allPieces = b._allPieces;
     }
 
     /** Set my contents as defined by STR.  STR consists of 25 characters,
@@ -75,7 +76,7 @@ class Board extends Observable {
             throw new IllegalArgumentException("bad board description");
         }
 
-        // FIXME
+        this._whoseMove = nextMove;
 
         for (int k = 0; k < str.length(); k += 1) {
             switch (str.charAt(k)) {
@@ -93,7 +94,7 @@ class Board extends Observable {
             }
         }
 
-        // FIXME
+        //FIXME-check for gameOVer? what else?
 
         setChanged();
         notifyObservers();
@@ -114,26 +115,26 @@ class Board extends Observable {
      *  and '1' <= R <= '5'.  */
     PieceColor get(char c, char r) {
         assert validSquare(c, r);
-        return get(index(c, r)); // FIXME?
+        return get(index(c, r));
     }
 
     /** Return the current contents of the square at linearized index K. */
     PieceColor get(int k) {
         assert validSquare(k);
-        return null; // FIXME
+        return _allPieces[k];
     }
 
     /** Set get(C, R) to V, where 'a' <= C <= 'e', and
      *  '1' <= R <= '5'. */
     private void set(char c, char r, PieceColor v) {
         assert validSquare(c, r);
-        set(index(c, r), v);  // FIXME?
+        set(index(c, r), v);
     }
 
     /** Set get(K) to V, where K is the linearized index of a square. */
     private void set(int k, PieceColor v) {
         assert validSquare(k);
-        // FIXME
+        _allPieces[k] = v;
     }
 
     /** Return true iff MOV is legal on the current board. */
@@ -251,9 +252,20 @@ class Board extends Observable {
     /** Return a text depiction of the board.  If LEGEND, supply row and
      *  column numbers around the edges. */
     String toString(boolean legend) {
-        Formatter out = new Formatter();
-        // FIXME
-        return out.toString();
+        //Formatter out = new Formatter();
+        StringBuilder sb = new StringBuilder();
+        //FIXME
+        String boarder = "===";
+        sb.append(boarder);
+        for (char c = 'e'; c >= 'a'; c -= 1) {
+            sb.append("\n  ");
+            for (char n = '5'; n >= '1'; n -= 1) {
+                sb. append(get(c, n).shortName() + " ");
+            }
+        }
+        sb.append("\n");
+        sb.append(boarder);
+        return sb.toString();
     }
 
     /** Return true iff there is a move for the current player. */
@@ -261,12 +273,17 @@ class Board extends Observable {
         return false;  // FIXME
     }
 
+    /** default string for a cleared board **/
+    public static String clearedBoard = "wwwwwwwwwwbb-wwbbbbbbbbbb";
 
     /** Player that is on move. */
     private PieceColor _whoseMove;
 
     /** Set true when game ends. */
     private boolean _gameOver;
+
+    /** Linearized representation of a two dimensional board **/
+    private PieceColor[] _allPieces;
 
     /** Convenience value giving values of pieces at each ordinal position. */
     static final PieceColor[] PIECE_VALUES = PieceColor.values();

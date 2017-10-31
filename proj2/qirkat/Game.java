@@ -183,22 +183,31 @@ class Game {
 
     /** Perform the move OPERANDS[0]. */
     void doMove(String[] operands) {
-        // FIXME
+        //a3-b3 single move
+        //a3-b3-b5 series of jumps
+        //combine helper methods to return the correct MOVE
+        Move.parseMove(operands[0]);
+        //finally call Board.makeMove(Move)
+        //DONE!!
     }
 
     /** Perform the command 'clear'. */
     void doClear(String[] unused) {
         // FIXME
+        _state = SETUP;
+        _board.clear();
+
     }
 
     /** Perform the command 'set OPERANDS[0] OPERANDS[1]'. */
     void doSet(String[] operands) {
-        // FIXME
+        PieceColor who = operands[0].equals("white") ? WHITE : operands[0].equals("black") ? BLACK : EMPTY;
+        _board.setPieces(operands[1], who);
     }
 
     /** Perform the command 'dump'. */
     void doDump(String[] unused) {
-        // FIXME
+        System.out.println(_board.toString());
     }
 
     /** Execute 'seed OPERANDS[0]' command, where the operand is a string
