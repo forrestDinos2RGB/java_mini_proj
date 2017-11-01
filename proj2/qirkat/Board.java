@@ -77,7 +77,6 @@ class Board extends Observable {
             throw new IllegalArgumentException("bad board description");
         }
 
-        //this._whoseMove = nextMove;
         setWhoseMove(nextMove);
 
         for (int k = 0; k < str.length(); k += 1) {
@@ -141,7 +140,12 @@ class Board extends Observable {
 
     /** Return true iff MOV is legal on the current board. */
     boolean legalMove(Move mov) {
-        return false; // FIXME
+        //move is jump
+        //FIXME
+        if (mov.isJump()) {
+
+        }
+        return false;
     }
 
     /** Return a list of all legal moves from the current position. */

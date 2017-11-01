@@ -159,13 +159,13 @@ class Move {
     /** Return true iff this is a horizontal, non-capturing move to
      *  the left. */
     boolean isLeftMove() {
-        return false; // FIXME
+        return (col1() - col0()) == -1;
     }
 
     /** Return true iff this is a horizontal, non-capturing move
      *  to the right. */
     boolean isRightMove() {
-        return false; // FIXME
+        return (col1() - col0() == 1);
     }
 
     /** Returns the source column. */
@@ -191,13 +191,23 @@ class Move {
     /** For a jump, returns the row of the jumped-over square for the
      *  first leg of the jump.  For a non-capturing move, same as row1(). */
     char jumpedRow() {
-        return '1';  // FIXME
+        int row0 = (int) row0();
+        int row1 = (int) row1();
+        if (row0 > row1) {
+            return (char) (row0 - 1);
+        }
+        return (char) (row1 - 1);
     }
 
     /** For a jump, returns the column of the jumped-over square for the
      *  first leg of the jump.  For a non-capturing move, same as col1(). */
     char jumpedCol() {
-        return 'a'; // FIXME
+        int col0 = (int) col0();
+        int col1 = (int) col1();
+        if (col0 > col1) {
+            return (char) (col0 - 1);
+        }
+        return (char) (col1 - 1);
     }
 
     /** Return the linearized index of my source square. */

@@ -172,8 +172,6 @@ class Game {
     /** Perform the command 'manual OPERANDS[0]'. */
     void doManual(String[] operands) {
         _state = SETUP;
-        //what does operands[0] look like, "black" or Black"
-        //Assume 'Black', and 'White'
         String who = PieceColor.capitalize(operands[0].toLowerCase());
         if (who.equals("White")) {
             _whiteIsManual = true;
@@ -198,7 +196,8 @@ class Game {
         //a3-b3 single move
         //a3-b3-b5 series of jumps
         //combine helper methods to return the correct MOVE
-        Move.parseMove(operands[0]);
+        Move move = Move.parseMove(operands[0]);
+        _board.makeMove(move);
         //finally call Board.makeMove(Move)
         //DONE!!
     }
