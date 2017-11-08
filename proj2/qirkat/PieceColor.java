@@ -50,7 +50,7 @@ enum PieceColor {
     /** Return the piece color given associated String, NAME. **/
     public static PieceColor toType(String name) {
         name = capitalize(name);
-        return name.equals("White") ? WHITE : name.equals("black") ? BLACK : EMPTY;
+        return name.equals("White") ? WHITE : name.equals("Black") ? BLACK : EMPTY;
     }
 
     @Override

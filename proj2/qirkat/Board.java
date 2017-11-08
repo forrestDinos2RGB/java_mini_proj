@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Stack;
 
 import static qirkat.PieceColor.*;
 import static qirkat.Move.*;
@@ -24,6 +25,7 @@ class Board extends Observable {
     /** A new, cleared board at the start of the game. */
     Board() {
         _allPieces = new PieceColor[Move.SIDE * Move.SIDE];
+        _direction = new int[Move.SIDE * Move.SIDE];
         clear();
     }
 
@@ -42,6 +44,7 @@ class Board extends Observable {
      *  positions. */
     void clear() {
         setPieces(clearedBoard, WHITE);
+        _direction = new int[Move.SIDE * Move.SIDE];
         _gameOver = false;
 
         setChanged();
@@ -55,10 +58,14 @@ class Board extends Observable {
 
     /** Copy B into me. */
     private void internalCopy(Board b) {
-        //this._whoseMove = b._whoseMove;
+        //copy over directions
+        _direction = b._direction.clone();
+        //copy over stack of boards
+        _undoBoard = (Stack)b._undoBoard.clone();
+        //copy over allPieces
+        _allPieces = b._allPieces.clone();
         setWhoseMove(b.whoseMove());
         this._gameOver = b._gameOver;
-        this._allPieces = b._allPieces;
     }
 
     /** Set my contents as defined by STR.  STR consists of 25 characters,
@@ -140,12 +147,7 @@ class Board extends Observable {
 
     /** Return true iff MOV is legal on the current board. */
     boolean legalMove(Move mov) {
-        //move is jump
-        //FIXME
-        if (mov.isJump()) {
-
-        }
-        return false;
+        return true;
     }
 
     /** Return a list of all legal moves from the current position. */
@@ -239,18 +241,68 @@ class Board extends Observable {
 
     /** Make the Move MOV on this Board, assuming it is legal. */
     void makeMove(Move mov) {
-        assert legalMove(mov);
-
-        // FIXME
-
+        if (legalMove(mov)) {
+            Board currBoard = new Board(this);
+            _undoBoard.push(currBoard);
+            makeMoveHelper(mov);
+            setDirections(mov);
+            while (mov.jumpTail() != null) {
+                mov = mov.jumpTail();
+                setDirections(mov);
+                makeMoveHelper(mov);
+            }
+        } else {
+            //throw some kind of error message
+            System.out.println("bad move my friend!");
+        }
+        setWhoseMove(whoseMove().opposite());
         setChanged();
         notifyObservers();
     }
 
+    /** For each move, makes sure that the pieceColor reflect
+     *  the current configuration.
+     */
+    void makeMoveHelper(Move mov) {
+        set(mov.toIndex(), get(mov.fromIndex()));
+        set(mov.fromIndex(), EMPTY);
+        if (mov.isJump()) {
+            set(mov.jumpedIndex(), EMPTY);
+        }
+    }
+
+    /** For each move, makes sure that directions reflect the current
+     *  configuration.**/
+    void setDirections(Move mov) {
+
+        //sets the toIndex to whatever direction it came from
+        if (mov.isLeftMove()) {
+            _direction[mov.toIndex()] = -1;
+        } else if (mov.isRightMove()) {
+            _direction[mov.toIndex()] = 1;
+        } else {
+            _direction[mov.toIndex()] = 0;
+        }
+        //sets from index to 0
+        _direction[mov.fromIndex()] = 0;
+        //if it is a jump, also set jumpedIndex = 0
+        if (mov.isJump()) {
+            _direction[mov.jumpedIndex()] = 0;
+        }
+    }
+
+    /** returns a copy of _directions for testing. **/
+    public int[] getDirections() {
+        return _direction.clone();
+    }
+
     /** Undo the last move, if any. */
     void undo() {
-        // FIXME
-
+        if (_undoBoard.isEmpty()) {
+            return;
+        }
+        Board prevBoard = _undoBoard.pop();
+        this.internalCopy(prevBoard);
         setChanged();
         notifyObservers();
     }
@@ -265,19 +317,68 @@ class Board extends Observable {
     String toString(boolean legend) {
         //Formatter out = new Formatter();
         StringBuilder sb = new StringBuilder();
-        //FIXME
-        String boarder = "===";
-        sb.append(boarder);
-        for (char c = 'e'; c >= 'a'; c -= 1) {
-            sb.append("\n  ");
-            for (char n = '5'; n >= '1'; n -= 1) {
-                sb. append(get(c, n).shortName() + " ");
+        for (char n = '5'; n >= '1'; n -= 1) {
+            if (!(n == '5')) {
+                sb.append("\n ");
+            } else {
+                sb.append(" ");
+            }
+            for (char c = 'a'; c <= 'e'; c += 1) {
+                sb.append(" " + get(c, n).shortName());
             }
         }
-        sb.append("\n");
-        sb.append(boarder);
+        if (legend) {
+            sb.append("\n  a b c d e");
+        }
         return sb.toString();
     }
+
+    @Override
+    public int hashCode() {
+        return 1;
+    }
+
+    @Override
+    public boolean equals(Object b2) {
+        return this.toString().equals(b2.toString()) &&
+                this.whoseMove() == ((Board)b2).whoseMove();
+    }
+//    private static class restorePiece {
+//        PieceColor _who;
+//        int _from;
+//        int _to;
+//
+//        private restorePiece(PieceColor who, int from, int to) {
+//            _who = who;
+//            _from = from;
+//            _to = to;
+//        }
+//
+//        /** which piece to relocate. **/
+//        PieceColor getWho() {
+//            return _who;
+//        }
+//
+//        /** the linearized index to move from. **/
+//        int getFrom() {
+//            return _from;
+//        }
+//
+//        /** the linearized index to return piece back to in order to
+//         * restore previous board. **/
+//        int getTo() {
+//            return _to;
+//        }
+//    }
+
+    /** keeps track of move history for undo **/
+    private Stack<Board> _undoBoard = new Stack<>();
+
+    /** If index k has val -1 then current piece at index k moved left to reach
+     *  this position. if val is 0, then piece has no particular orientation.
+     *  If index val is +1, then piece moved right to reach this position.
+      */
+    private int[] _direction;
 
     /** Return true iff there is a move for the current player. */
     private boolean isMove() {

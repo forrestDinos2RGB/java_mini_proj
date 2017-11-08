@@ -2,6 +2,7 @@ package qirkat;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import java.util.Arrays;
 
 /** Tests of the Board class.
  *  @author
@@ -16,6 +17,12 @@ public class BoardTest {
       "c1-c3", "a3-c1",
       "c3-a3", "c5-c4",
       "a3-c5-c3",
+    };
+
+    private static final String[] GAME2 =
+    { "c2-c3", "c4-c2",
+      "c1-c3", "a3-c1",
+      "c3-a3", "c5-c4",
     };
 
     private static final String GAME1_BOARD =
@@ -54,4 +61,34 @@ public class BoardTest {
         assertEquals("second pass failed to reach same position", b2, b0);
     }
 
+    @Test
+    public void testUndo2() {
+        Board b0 = new Board();
+        Board b1 = new Board(b0);
+        makeMoves(b0, GAME1);
+        makeMoves(b1, GAME2);
+        b0.undo();
+        assertEquals(b0.toString(), b1.toString());
+    }
+
+    private static int[] initDirection =
+            {0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0
+            };
+
+    @Test
+    public void TestSetDirections1() {
+        Board b0 = new Board();
+        assertTrue(Arrays.equals(initDirection, b0.getDirections()));
+        makeMoves(b0, GAME2);
+        assertTrue(Arrays.equals(initDirection, b0.getDirections()));
+    }
+
+    @Test
+    public void TestSeDirections2() {
+        //FIXME
+    }
 }

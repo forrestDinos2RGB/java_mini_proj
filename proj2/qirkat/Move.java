@@ -145,6 +145,29 @@ class Move {
         return (char) (k / STEP_R + '1');
     }
 
+    /** Return true iff this is a forward move. */
+    boolean isForward() {
+        //FIXME
+        return false;
+    }
+    /** Return true iff this is a backward move. */
+    boolean isBackward() {
+        //FIXME
+        return false;
+    }
+
+    /** Return true iff this is a diagonal move. */
+    boolean isDiagonal() {
+        //FIXME
+        return false;
+    }
+
+    /** Return true iff a diagonal move is legal. **/
+    boolean diagonalIsLegal() {
+        //FIXME
+        return false;
+    }
+
     /** Return true iff this is a capturing move (a jump). */
     boolean isJump() {
         return _isJump;
@@ -159,13 +182,15 @@ class Move {
     /** Return true iff this is a horizontal, non-capturing move to
      *  the left. */
     boolean isLeftMove() {
-        return (col1() - col0()) == -1;
+        //FIXME
+        return ((col1() - col0()) == -1) && (row0() == row1());
     }
 
     /** Return true iff this is a horizontal, non-capturing move
      *  to the right. */
     boolean isRightMove() {
-        return (col1() - col0() == 1);
+        //FIXME
+        return ((col1() - col0()) == 1) && (row0() == row1());
     }
 
     /** Returns the source column. */
@@ -193,10 +218,11 @@ class Move {
     char jumpedRow() {
         int row0 = (int) row0();
         int row1 = (int) row1();
-        if (row0 > row1) {
-            return (char) (row0 - 1);
+        if (row0 == row1) {
+            return (char) row0;
+        } else {
+            return (char)((row0 + row1) / 2);
         }
-        return (char) (row1 - 1);
     }
 
     /** For a jump, returns the column of the jumped-over square for the
@@ -204,10 +230,11 @@ class Move {
     char jumpedCol() {
         int col0 = (int) col0();
         int col1 = (int) col1();
-        if (col0 > col1) {
-            return (char) (col0 - 1);
+        if (col0 == col1) {
+            return (char) col0;
+        } else {
+            return (char) ((col0 + col1) / 2);
         }
-        return (char) (col1 - 1);
     }
 
     /** Return the linearized index of my source square. */
@@ -281,7 +308,12 @@ class Move {
 
     /** Write my string representation into OUT. */
     private void toString(Formatter out) {
-        out.format("???"); // FIXME
+        out.format("%1$c%2$c-%3$c%4$c",col0(),row0(), col1(), row1());
+        Move currMove = this;
+        while (currMove.jumpTail() != null) {
+            currMove = currMove.jumpTail();
+            out.format("-%1$c%2$c", currMove.col1(), currMove.row1());
+        }
     }
 
     /** Set me to COL0 ROW0 - COL1 ROW1 - NEXTJUMP. */

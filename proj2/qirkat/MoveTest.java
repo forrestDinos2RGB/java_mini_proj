@@ -46,11 +46,38 @@ public class MoveTest {
     public void testJumpedRow() {
         Move m = move('a', '1', 'c', '3');
         assertEquals('2', m.jumpedRow());
+        Move m2 = move('a', '1', 'c', '1');
+        assertEquals('1', m2.jumpedRow());
     }
 
     @Test
     public void testJumpedCol() {
         Move m = move('a', '1', 'c', '3');
         assertEquals('b', m.jumpedCol());
+        Move m2 = move('a', '3', 'a', '5');
+    }
+
+    //Additional tests below
+
+    @Test
+    public void TestIsLeftMove() {
+        Move left = Move.move('c', '1', 'b', '1', null);
+        assertTrue(left.isLeftMove());
+    }
+
+    @Test
+    public void TestIsRightMove() {
+        Move right = Move.move('c', '2', 'd', '2', null);
+        assertTrue(right.isRightMove());
+    }
+
+    @Test
+    public void TestNextJump() {
+        Move jump = Move.parseMove("a3-a5-c5-c3-c1-a1");
+        assertTrue(jump.isJump());
+        while (jump.jumpTail() != null) {
+            jump = jump.jumpTail();
+            assertTrue(jump.isJump());
+        }
     }
 }

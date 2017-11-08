@@ -219,7 +219,8 @@ class Game {
 
     /** Perform the command 'dump'. */
     void doDump(String[] unused) {
-        System.out.println(_board.toString());
+        String boarder = "===";
+        System.out.println(boarder + "\n" + _board.toString() + "\n" + boarder);
     }
 
     /** Execute 'seed OPERANDS[0]' command, where the operand is a string
