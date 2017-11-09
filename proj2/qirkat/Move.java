@@ -120,7 +120,7 @@ class Move {
         }
         if (move0.jumpTail() == null) {
             move0._nextJump = move1;
-            return move1;
+            return move0;
         } else {
             Move head = move0;
             while (move0.jumpTail() != null) {

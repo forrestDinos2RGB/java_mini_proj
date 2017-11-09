@@ -187,10 +187,6 @@ class Board extends Observable {
     /** Add all legal captures from the position with linearized index K
      *  to MOVES. */
     private void getJumps(ArrayList<Move> moves, int k) {
-        MoveList jumps = getJumpsHelper(k, this);
-        if (jumps.size() == 1 && jumps.get(0).isVestigial()) {
-            return;
-        }
         moves.addAll(getJumpsHelper(k, this));
     }
 
@@ -200,28 +196,20 @@ class Board extends Observable {
     MoveList getJumpsHelper(int k, Board currState) {
         MoveList validJumps = new MoveList();
         MoveList validOneJumps = allOneJumpsFromK(k, currState);
-        System.out.println("*******");
-        System.out.println(currState.toString());
-        System.out.println("*******");
-        //no jumps initially
-        if (validOneJumps.size() == 1 && validOneJumps.get(0).isVestigial()) {
-            return validOneJumps;
+        if (validOneJumps.size() == 0) {
+            return validJumps;
         }
         for (Move jump: validOneJumps) {
             Board nextState = new Board(currState);
             //makes the jump
             //change the pieces but don't change anything else
             nextState.makeMoveHelper(jump);
-            System.out.println(nextState.toString());
             MoveList restJumps = getJumpsHelper(jump.toIndex(), nextState);
+            if (restJumps.size() == 0) {
+                validJumps.add(jump);
+            }
             for (Move rest: restJumps) {
-                //concatenates two moves together
-                //rest could be a vestigial
-                if (rest.isVestigial()) {
-                    validJumps.add(jump);
-                } else {
-                    validJumps.add(Move.move(jump, rest));
-                }
+                validJumps.add(Move.move(jump, rest));
             }
         }
         return validJumps;
@@ -255,10 +243,6 @@ class Board extends Observable {
     /** Return true iff a jump is possible for a piece at position with
      *  linearized index K. */
     boolean jumpPossible(int k) {
-        MoveList jumps = allOneJumpsFromK(k, this);
-        if (jumps.size() == 1 && jumps.get(0).isVestigial()) {
-            return false;
-        }
         return (allOneJumpsFromK(k, this).size() >= 1);
     }
 
@@ -290,9 +274,9 @@ class Board extends Observable {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
-        if (possibleJumps.size() == 0) {
-            possibleJumps.add(Move.move((char)col(k), (char)row(k)));
-        }
+//        if (possibleJumps.size() == 0) {
+//            possibleJumps.add(Move.move((char)col(k), (char)row(k)));
+//        }
         return possibleJumps;
     }
 

@@ -3,6 +3,7 @@ package qirkat;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 /** Tests of the Board class.
  *  @author
@@ -127,14 +128,38 @@ public class BoardTest {
     }
 
     @Test
-    public void testGetJumpsHelper() {
+    public void testEqualsMove() {
+        Move mov1 = Move.move('a', '1', 'b', '1');
+        Move mov2 = Move.move('a', '1', 'b', '1');
+        assertEquals(mov1, mov2);
+    }
+
+    @Test
+    public void testGetJumpsHelper1() {
         Board b1 = new Board();
         String config1 = "---w-w---w--bw-w---w----w";
         b1.setPieces(config1, PieceColor.BLACK);
-        System.out.println(b1);
-        //b1.getJumpsHelper(12, b1);
-        System.out.println(b1.getJumpsHelper(12, b1));
-        //System.out.println(b1.getJumpsHelper(12, b1).size() == 0);
+        ArrayList<Move> expected = new ArrayList<>();
+        expected.add(Move.parseMove("c3-e3-e1-c1"));
+        ArrayList<Move> actual = b1.getJumpsHelper(12, b1);
+        for (int i = 0; i < actual.size(); i++) {
+            assertEquals(expected.get(i).toString(), actual.get(i).toString());
+        }
 
+    }
+
+    @Test
+    public void testGetJumpsHelper2() {
+        Board b1 = new Board();
+        String config1 = "---w-w---w-wbw-w---w----w";
+        b1.setPieces(config1, PieceColor.BLACK);
+        ArrayList<Move> expected = new ArrayList<>();
+        expected.add(Move.parseMove("c3-e3-e1-c1"));
+        expected.add(Move.parseMove("c3-a3-a5-a1"));
+        expected.add(Move.parseMove("c3-a3-a5-a1"));
+        ArrayList<Move> actual = b1.getJumpsHelper(12, b1);
+        for (int i = 0; i < actual.size(); i++) {
+            assertEquals(expected.get(i).toString(), actual.get(i).toString());
+        }
     }
 }
