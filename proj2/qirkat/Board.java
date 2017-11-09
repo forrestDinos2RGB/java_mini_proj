@@ -188,6 +188,39 @@ class Board extends Observable {
      *  to MOVES. */
     private void getJumps(ArrayList<Move> moves, int k) {
         // FIXME
+//        MoveList validJumps = new MoveList();
+//        MoveList validOneJumps = allOneJumpsFromK(k);
+//        //no jumps initially
+//        if (validOneJumps.size() == 0) {
+//            return;
+//        }
+//        for (Move jump: validOneJumps) {
+//            Move concatJump = Move.move(jump, getMoves)
+//        }
+    }
+
+    /** Return a list of all possible jumps given current board state,
+     *   a fromIndex.
+     */
+    private MoveList getJumpsHelper(int k, Board currState) {
+        //FIXME
+        //you need to include the modified board state
+        //I think this works not sure
+        MoveList validJumps = new MoveList();
+        MoveList validOneJumps = allOneJumpsFromK(k);
+        //no jumps initially
+        if (validOneJumps.size() == 0) {
+            return validJumps;
+        }
+        for (Move jump: validOneJumps) {
+            Board nextState = new Board(currState);
+            nextState.makeMove(jump);
+            MoveList restJumps = getJumpsHelper(jump.toIndex(), nextState);
+            for (Move rest: restJumps) {
+                validJumps.add(Move.move(jump, rest));
+            }
+        }
+        return validJumps;
     }
 
     /** Return true iff MOV is a valid jump sequence on the current board.
@@ -218,12 +251,12 @@ class Board extends Observable {
     /** Return true iff a jump is possible for a piece at position with
      *  linearized index K. */
     boolean jumpPossible(int k) {
-        return ! (possibleJumpIndices(k).size() == 0);
+        return ! (allOneJumpsFromK(k).size() == 0);
     }
 
     /** given a starting index, return a list of all possible jumps. **/
-    ArrayList<Integer> possibleJumpIndices(int k) {
-        ArrayList<Integer> possibleJumps = new ArrayList<>();
+    MoveList allOneJumpsFromK(int k) {
+        MoveList possibleJumps = new MoveList();
         if (get(k) == EMPTY) {
             return possibleJumps;
         }
@@ -234,19 +267,19 @@ class Board extends Observable {
         //vertical jumps
         for (int jIndex : verticalJumps) {
             if (jumpAllowed(jIndex, k)) {
-                possibleJumps.add(jIndex);
+                possibleJumps.add(Move.move(k, jIndex));
             }
         }
         //horizontal jumps
         for (int jIndex : horizontalJumps) {
             if (jumpAllowed(jIndex, k) && validHorizontal(jIndex, k)) {
-                possibleJumps.add(jIndex);
+                possibleJumps.add(Move.move(k, jIndex));
             }
         }
         //diagonal jumps
         for (int jIndex : diagonalJumps) {
             if (jumpAllowed(jIndex, k) && validDiagonal(jIndex, k)) {
-                possibleJumps.add(jIndex);
+                possibleJumps.add(Move.move(k, jIndex));
             }
         }
         return possibleJumps;
