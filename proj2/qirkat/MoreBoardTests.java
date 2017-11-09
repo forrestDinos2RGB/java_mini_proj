@@ -279,5 +279,34 @@ public class MoreBoardTests {
         assertFalse(b1.jumpPossible(12));
     }
 
+    @Test
+    /** if white's turn, should not be able to move black's piece. **/
+    public void testCheckJump1() {
+        Board b1 = new Board();
+        String config1 = "---w-w---w-wbw-w---w----w";
+        b1.setPieces(config1, PieceColor.WHITE);
+        boolean actual = b1.checkJump(Move.parseMove("c3-a3"), false);
+        assertEquals(false, actual);
+    }
+
+    @Test
+    /** if black's turn and allow partial, move should be valid. **/
+    public void testCheckJump2() {
+        Board b1 = new Board();
+        String config1 = "---w-w---w-wbw-w---w----w";
+        b1.setPieces(config1, PieceColor.BLACK);
+        boolean actual = b1.checkJump(Move.parseMove("c3-a3"), true);
+        assertEquals(true, actual);
+    }
+
+    @Test
+    /** if black's turn and partial is false, move should not be valid. **/
+    public void testCheckJump3() {
+        Board b1 = new Board();
+        String config1 = "---w-w---w-wbw-w---w----w";
+        b1.setPieces(config1, PieceColor.BLACK);
+        boolean actual = b1.checkJump(Move.parseMove("c3-a3"), false);
+        assertEquals(false, actual);
+    }
 
 }

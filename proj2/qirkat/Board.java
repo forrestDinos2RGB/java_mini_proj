@@ -222,10 +222,24 @@ class Board extends Observable {
      *  MOV must be a jump or null.  If ALLOWPARTIAL, allow jumps that
      *  could be continued and are valid as far as they go.  */
     boolean checkJump(Move mov, boolean allowPartial) {
-        if (mov == null) {
+        if (!jumpAllowed(mov) || mov.isVestigial()) {
+            return false;
+        }
+        while (mov.jumpTail() != null) {
+            mov = mov.jumpTail();
+            if (!jumpAllowed(mov) || mov.isVestigial()) {
+                return false;
+            }
+        }
+        if (allowPartial) {
             return true;
         }
-        return false; // FIXME
+        Board copy = new Board(this);
+        copy.makeMoveHelper(mov);
+        if (copy.jumpPossible(index(mov.col1(), mov.row1()))) {
+            return false;
+        }
+        return true;
     }
 
     /** Return true iff a jump is possible from the current board. */
@@ -261,30 +275,31 @@ class Board extends Observable {
 
         //vertical jumps
         for (int jIndex : verticalJumps) {
-            if (jumpAllowed(jIndex, k)) {
+            if (jumpAllowed(k, jIndex)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
         //horizontal jumps
         for (int jIndex : horizontalJumps) {
-            if (jumpAllowed(jIndex, k) && validHorizontal(jIndex, k)) {
+            if (jumpAllowed(k, jIndex) && validHorizontal(jIndex, k)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
         //diagonal jumps
         for (int jIndex : diagonalJumps) {
-            if (jumpAllowed(jIndex, k) && validDiagonal(jIndex, k)) {
+            if (jumpAllowed(k, jIndex) && validDiagonal(jIndex, k)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
-//        if (possibleJumps.size() == 0) {
-//            possibleJumps.add(Move.move((char)col(k), (char)row(k)));
-//        }
         return possibleJumps;
     }
 
-    /** Return true if intended jump is allowed. **/
-    boolean jumpAllowed(int jumpIndex, int fromIndex) {
+    /** Return true if intended jump is allowed for MOVE. **/
+    boolean jumpAllowed(Move jump) {
+        return jumpAllowed(index(jump.col0(), jump.row0()), index(jump.col1(), jump.row1()));
+    }
+    /** Return true if intended jump is allowed for JUMPINDEX, FROMINDEX. **/
+    boolean jumpAllowed(int fromIndex, int jumpIndex) {
         return (Move.validSquare(jumpIndex) &&
                 get((fromIndex + jumpIndex) / 2) == get(fromIndex).opposite() &&
                 get(jumpIndex) == EMPTY) && get(fromIndex) == whoseMove();
