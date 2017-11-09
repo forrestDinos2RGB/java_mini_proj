@@ -85,7 +85,7 @@ class Move {
     }
 
     /** give two linearized index J, K, return a Move. **/
-    static Move move(int j, int k) {
+    static Move moveLinIndex(int j, int k) {
         return move((char) col(j), (char) row(j), (char) col(k), (char) row(k));
     }
 
@@ -113,14 +113,22 @@ class Move {
             return move0;
         }
         if (move0.isVestigial()) {
-            return null; // FIXME
+            move0._col1 = move1._col1;
+            move0._row1 = move1._row1;
+            move0._nextJump = move1;
+            return move0;
         }
         if (move0.jumpTail() == null) {
-            return null; // FIXME
+            move0._nextJump = move1;
+            return move1;
         } else {
-            return null; // FIXME
+            Move head = move0;
+            while (move0.jumpTail() != null) {
+                move0 = move0.jumpTail();
+            }
+            move0._nextJump = move1;
+            return head;
         }
-
     }
 
     /** Return true iff (C, R) is a valid square designation. */

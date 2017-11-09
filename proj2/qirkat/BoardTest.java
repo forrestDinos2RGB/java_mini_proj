@@ -93,7 +93,7 @@ public class BoardTest {
     }
 
     @Test
-    public void testJumpPossible() {
+    public void testJumpPossible1() {
         Board b1 = new Board();
         assertFalse(b1.jumpPossible());
         String config1 = "wwbwww--ww--wwwb--bbbb-bb";
@@ -104,12 +104,37 @@ public class BoardTest {
     }
 
     @Test
+    public void testJumpPossible2() {
+        //FIXME
+        Board b1 = new Board();
+        assertFalse(b1.jumpPossible());
+        String config1 = "---w-w---w-wbw-w---w----w";
+        b1.setPieces(config1, PieceColor.WHITE);
+        b1.makeMoveHelper(Move.parseMove("c3-e3"));
+        System.out.println(b1.toString());
+        assertTrue(b1.jumpPossible(14));
+        System.out.println(b1.allOneJumpsFromK(14, b1));
+    }
+
+    @Test
     public void testValidHorizontal() {
 
     }
 
     @Test
     public void testValidDiagonal() {
+
+    }
+
+    @Test
+    public void testGetJumpsHelper() {
+        Board b1 = new Board();
+        String config1 = "---w-w---w--bw-w---w----w";
+        b1.setPieces(config1, PieceColor.BLACK);
+        System.out.println(b1);
+        //b1.getJumpsHelper(12, b1);
+        System.out.println(b1.getJumpsHelper(12, b1));
+        //System.out.println(b1.getJumpsHelper(12, b1).size() == 0);
 
     }
 }

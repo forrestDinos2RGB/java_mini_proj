@@ -193,13 +193,8 @@ class Game {
 
     /** Perform the move OPERANDS[0]. */
     void doMove(String[] operands) {
-        //a3-b3 single move
-        //a3-b3-b5 series of jumps
-        //combine helper methods to return the correct MOVE
         Move move = Move.parseMove(operands[0]);
         _board.makeMove(move);
-        //finally call Board.makeMove(Move)
-        //DONE!!
     }
 
     /** Perform the command 'clear'. */
