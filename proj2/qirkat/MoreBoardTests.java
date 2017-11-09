@@ -266,5 +266,18 @@ public class MoreBoardTests {
         }
     }
 
+    @Test
+    /** tests that getJumpsHelper, getJumps, and jumpPossible return empty list,
+     *  when specificed position piece != whoseMove()
+     */
+    public void testGetJumpsHelper3() {
+        Board b1 = new Board();
+        String config1 = "---w-w---w-wbw-w---w----w";
+        b1.setPieces(config1, PieceColor.WHITE);
+        ArrayList<Move> actual = b1.getJumpsHelper(12, b1);
+        assertTrue(actual.size() == 0);
+        assertFalse(b1.jumpPossible(12));
+    }
+
 
 }

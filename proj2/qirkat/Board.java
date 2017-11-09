@@ -195,7 +195,10 @@ class Board extends Observable {
      */
     MoveList getJumpsHelper(int k, Board currState) {
         MoveList validJumps = new MoveList();
-        MoveList validOneJumps = allOneJumpsFromK(k, currState);
+        if (currState.get(k) != currState.whoseMove()) {
+            return validJumps;
+        }
+        MoveList validOneJumps = currState.allOneJumpsFromK(k);
         if (validOneJumps.size() == 0) {
             return validJumps;
         }
@@ -243,13 +246,13 @@ class Board extends Observable {
     /** Return true iff a jump is possible for a piece at position with
      *  linearized index K. */
     boolean jumpPossible(int k) {
-        return (allOneJumpsFromK(k, this).size() >= 1);
+        return (allOneJumpsFromK(k).size() >= 1);
     }
 
     /** given a starting index, return a list of all possible jumps. **/
-    MoveList allOneJumpsFromK(int k, Board currBoard) {
+    MoveList allOneJumpsFromK(int k) {
         MoveList possibleJumps = new MoveList();
-        if (currBoard.get(k) == EMPTY) {
+        if (get(k) == EMPTY || get(k) != whoseMove()) {
             return possibleJumps;
         }
         int[] verticalJumps = {k + 10, k - 10};
@@ -258,19 +261,19 @@ class Board extends Observable {
 
         //vertical jumps
         for (int jIndex : verticalJumps) {
-            if (currBoard.jumpAllowed(jIndex, k)) {
+            if (jumpAllowed(jIndex, k)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
         //horizontal jumps
         for (int jIndex : horizontalJumps) {
-            if (currBoard.jumpAllowed(jIndex, k) && validHorizontal(jIndex, k)) {
+            if (jumpAllowed(jIndex, k) && validHorizontal(jIndex, k)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
         //diagonal jumps
         for (int jIndex : diagonalJumps) {
-            if (currBoard.jumpAllowed(jIndex, k) && validDiagonal(jIndex, k)) {
+            if (jumpAllowed(jIndex, k) && validDiagonal(jIndex, k)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
@@ -284,7 +287,7 @@ class Board extends Observable {
     boolean jumpAllowed(int jumpIndex, int fromIndex) {
         return (Move.validSquare(jumpIndex) &&
                 get((fromIndex + jumpIndex) / 2) == get(fromIndex).opposite() &&
-                get(jumpIndex) == EMPTY);
+                get(jumpIndex) == EMPTY) && get(fromIndex) == whoseMove();
     }
 
     /** given 2 linearized index, return true if is valid horizontal move. **/
