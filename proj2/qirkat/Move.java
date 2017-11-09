@@ -84,6 +84,11 @@ class Move {
         return result;
     }
 
+    /** give two linearized index J, K, return a Move. **/
+    static Move move(int j, int k) {
+        return move((char) col(j), (char) row(j), (char) col(k), (char) row(k));
+    }
+
     /** Return a single move or jump from (COL0, ROW0) to (COL1, ROW1).
      *  Not thread-safe. */
     static Move move(char col0, char row0, char col1, char row1) {

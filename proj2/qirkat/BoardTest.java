@@ -91,4 +91,25 @@ public class BoardTest {
     public void TestSeDirections2() {
         //FIXME
     }
+
+    @Test
+    public void testJumpPossible() {
+        Board b1 = new Board();
+        assertFalse(b1.jumpPossible());
+        String config1 = "wwbwww--ww--wwwb--bbbb-bb";
+        b1.setPieces(config1, PieceColor.WHITE);
+        assertTrue(b1.jumpPossible(14));
+        assertTrue(b1.jumpPossible(18));
+        assertFalse(b1.jumpPossible(1));
+    }
+
+    @Test
+    public void testValidHorizontal() {
+
+    }
+
+    @Test
+    public void testValidDiagonal() {
+
+    }
 }

@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 
 import static qirkat.Move.*;
 
+
 /** Test Move creation.
  *  @author
  */
@@ -80,4 +81,5 @@ public class MoveTest {
             assertTrue(jump.isJump());
         }
     }
+
 }

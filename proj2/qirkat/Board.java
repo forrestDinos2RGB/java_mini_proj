@@ -45,6 +45,8 @@ class Board extends Observable {
     void clear() {
         setPieces(clearedBoard, WHITE);
         _direction = new int[Move.SIDE * Move.SIDE];
+        _undoDirection = new Stack<>();
+        _undoPieces = new Stack<>();
         _gameOver = false;
 
         setChanged();
@@ -60,8 +62,10 @@ class Board extends Observable {
     private void internalCopy(Board b) {
         //copy over directions
         _direction = b._direction.clone();
-        //copy over stack of boards
-        _undoBoard = (Stack)b._undoBoard.clone();
+        //copy over undoDirections
+        _undoDirection = (Stack)b._undoDirection.clone();
+        //copy over undoPieces
+        _undoPieces = (Stack)b._undoPieces.clone();
         //copy over allPieces
         _allPieces = b._allPieces.clone();
         setWhoseMove(b.whoseMove());
@@ -147,6 +151,7 @@ class Board extends Observable {
 
     /** Return true iff MOV is legal on the current board. */
     boolean legalMove(Move mov) {
+        //FIXME
         return true;
     }
 
@@ -195,17 +200,6 @@ class Board extends Observable {
         return false; // FIXME
     }
 
-    /** Return true iff a jump is possible for a piece at position C R. */
-    boolean jumpPossible(char c, char r) {
-        return jumpPossible(index(c, r));
-    }
-
-    /** Return true iff a jump is possible for a piece at position with
-     *  linearized index K. */
-    boolean jumpPossible(int k) {
-        return false; // FIXME
-    }
-
     /** Return true iff a jump is possible from the current board. */
     boolean jumpPossible() {
         for (int k = 0; k <= MAX_INDEX; k += 1) {
@@ -214,6 +208,66 @@ class Board extends Observable {
             }
         }
         return false;
+    }
+
+    /** Return true iff a jump is possible for a piece at position C R. */
+    boolean jumpPossible(char c, char r) {
+        return jumpPossible(index(c, r));
+    }
+
+    /** Return true iff a jump is possible for a piece at position with
+     *  linearized index K. */
+    boolean jumpPossible(int k) {
+        return ! (possibleJumpIndices(k).size() == 0);
+    }
+
+    /** given a starting index, return a list of all possible jumps. **/
+    ArrayList<Integer> possibleJumpIndices(int k) {
+        ArrayList<Integer> possibleJumps = new ArrayList<>();
+        if (get(k) == EMPTY) {
+            return possibleJumps;
+        }
+        int[] verticalJumps = {k + 10, k - 10};
+        int[] horizontalJumps = {k + 2, k - 2};
+        int[] diagonalJumps = {k + 8, k - 8, k + 12, k - 12};
+
+        //vertical jumps
+        for (int jIndex : verticalJumps) {
+            if (jumpAllowed(jIndex, k)) {
+                possibleJumps.add(jIndex);
+            }
+        }
+        //horizontal jumps
+        for (int jIndex : horizontalJumps) {
+            if (jumpAllowed(jIndex, k) && validHorizontal(jIndex, k)) {
+                possibleJumps.add(jIndex);
+            }
+        }
+        //diagonal jumps
+        for (int jIndex : diagonalJumps) {
+            if (jumpAllowed(jIndex, k) && validDiagonal(jIndex, k)) {
+                possibleJumps.add(jIndex);
+            }
+        }
+        return possibleJumps;
+    }
+
+    /** Return true if intended jump is allowed. **/
+    boolean jumpAllowed(int jumpIndex, int fromIndex) {
+        return (Move.validSquare(jumpIndex) &&
+                get((fromIndex + jumpIndex) / 2) == get(fromIndex).opposite() &&
+                get(jumpIndex) == EMPTY);
+    }
+
+    /** given 2 linearized index, return true if is valid horizontal move. **/
+    boolean validHorizontal(int from, int to) {
+        return Math.abs(from % 5 - to % 5) == 2;
+    }
+    /** given 2 linearized index, return true if is valid diagonal move. **/
+    boolean validDiagonal(int from, int to) {
+        boolean twoRowsAway = (Math.abs(from / 5 - to / 5) == 2);
+        boolean twoColsAway = Math.abs(from % 5 - to % 5) == 2;
+        return twoRowsAway && twoColsAway;
     }
 
     /** Return the color of the player who has the next move.  The
@@ -242,8 +296,8 @@ class Board extends Observable {
     /** Make the Move MOV on this Board, assuming it is legal. */
     void makeMove(Move mov) {
         if (legalMove(mov)) {
-            Board currBoard = new Board(this);
-            _undoBoard.push(currBoard);
+            _undoDirection.push(_direction.clone());
+            _undoPieces.push(_allPieces.clone());
             makeMoveHelper(mov);
             setDirections(mov);
             while (mov.jumpTail() != null) {
@@ -298,11 +352,18 @@ class Board extends Observable {
 
     /** Undo the last move, if any. */
     void undo() {
-        if (_undoBoard.isEmpty()) {
+        if (_undoPieces.isEmpty()) {
             return;
         }
-        Board prevBoard = _undoBoard.pop();
-        this.internalCopy(prevBoard);
+        PieceColor[] prevPieces = _undoPieces.pop();
+        int[] prevDirections = _undoDirection.pop();
+        //reverse whoseMove
+        _whoseMove = _whoseMove.opposite();
+        //if gameOver is true, then must be false in previous
+        _gameOver = false;
+        _direction = prevDirections;
+        _allPieces = prevPieces;
+
         setChanged();
         notifyObservers();
     }
@@ -372,7 +433,12 @@ class Board extends Observable {
 //    }
 
     /** keeps track of move history for undo **/
-    private Stack<Board> _undoBoard = new Stack<>();
+    //private Stack<Board> _undoBoard = new Stack<>();
+
+    /** keeps track of PieceColor history for undo. **/
+    private Stack<PieceColor[]> _undoPieces;
+    /** keeps track of direction history for undo. **/
+    private Stack<int[]> _undoDirection;
 
     /** If index k has val -1 then current piece at index k moved left to reach
      *  this position. if val is 0, then piece has no particular orientation.
