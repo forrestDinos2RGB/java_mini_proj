@@ -254,16 +254,15 @@ public class MoreBoardTests {
     @Test
     public void testGetJumpsHelper2() {
         Board b1 = new Board();
-        String config1 = "---w-w---w-wbw-w---w----w";
+        String config1 = "---w-w---w-wb--w---w----w";
         b1.setPieces(config1, PieceColor.BLACK);
         ArrayList<Move> expected = new ArrayList<>();
-        expected.add(Move.parseMove("c3-e3-e1-c1"));
-        expected.add(Move.parseMove("c3-a3-a5-a1"));
-        expected.add(Move.parseMove("c3-a3-a5-a1"));
+        expected.add(Move.parseMove("c3-a3-a1"));
+        expected.add(Move.parseMove("c3-a3-a5"));
         ArrayList<Move> actual = b1.getJumpsHelper(12, b1);
-        for (int i = 0; i < actual.size(); i++) {
-            assertEquals(expected.get(i).toString(), actual.get(i).toString());
-        }
+        System.out.println(actual);
+        assertEquals(expected.get(0).toString(), actual.get(1).toString());
+        assertEquals(expected.get(1).toString(), actual.get(0).toString());
     }
 
     @Test
@@ -308,5 +307,33 @@ public class MoreBoardTests {
         boolean actual = b1.checkJump(Move.parseMove("c3-a3"), false);
         assertEquals(false, actual);
     }
+
+
+    //EDGE cases! Must pass these!!!
+    @Test
+    /** make sure the jumps follow the lines of the board. **/
+    public void testJumpPossibleDiagonal1() {
+        Board b1 = new Board();
+        String noDiagonalJump = "wwwwww-b-wb-wwwbb-bbbbbbb";
+        b1.setPieces(noDiagonalJump, PieceColor.WHITE);
+        System.out.println(b1);
+        assertFalse(b1.jumpPossible(3));
+
+    }
+
+    @Test
+    /** make sure the jumps follow the lines of the board. **/
+    public void testGetJumpsDiagonal2() {
+        Board b1 = new Board();
+        String noDiagonalJump = "--w----ww----b-----------";
+        b1.setPieces(noDiagonalJump, PieceColor.BLACK);
+        Move expected = Move.parseMove("d3-d1-b1");
+        ArrayList<Move> actual = b1.getJumpsHelper(13, b1);
+        assertTrue(actual.size() == 1);
+        assertEquals(expected.toString(), actual.get(0).toString());
+
+
+    }
+
 
 }

@@ -113,23 +113,23 @@ class Move {
             return move0;
         }
         if (move0.isVestigial()) {
-            move0._col1 = move1._col1;
-            move0._row1 = move1._row1;
-            move0._nextJump = move1;
-            return move0;
+            if (move0.col1() == move1.col0() &&
+                    move0.row1() == move1.row0()) {
+                return move1;
+            } else {
+                return move(move0.col0(), move0.row0(),
+                        move1.col0(), move1.row0(), move1);
+            }
         }
         if (move0.jumpTail() == null) {
-            move0._nextJump = move1;
-            return move0;
-        } else {
-            move0._nextJump = move(move0.jumpTail(), move1);
-            return move0;
-//            Move head = move0;
-//            while (move0.jumpTail() != null) {
-//                move0 = move0.jumpTail();
-//            }
+            return move(move0.col0(), move0.row0(),
+                    move0.col1(), move0.row1(), move1);
+            //BAD CAT
 //            move0._nextJump = move1;
-//            return head;
+//            return move0;
+        } else {
+            move(move0.jumpTail(), move1);
+            return move0;
         }
     }
 

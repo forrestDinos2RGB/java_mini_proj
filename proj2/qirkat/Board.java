@@ -194,6 +194,9 @@ class Board extends Observable {
      *   a fromIndex.
      */
     MoveList getJumpsHelper(int k, Board currState) {
+        System.out.println("************");
+        System.out.println(currState);
+        System.out.println("************");
         MoveList validJumps = new MoveList();
         if (currState.get(k) != currState.whoseMove()) {
             return validJumps;
@@ -212,6 +215,8 @@ class Board extends Observable {
                 validJumps.add(jump);
             }
             for (Move rest: restJumps) {
+                //This line is screwing things up
+                //jump is concatenated with every entry in the list
                 validJumps.add(Move.move(jump, rest));
             }
         }
@@ -281,13 +286,13 @@ class Board extends Observable {
         }
         //horizontal jumps
         for (int jIndex : horizontalJumps) {
-            if (jumpAllowed(k, jIndex) && validHorizontal(jIndex, k)) {
+            if (jumpAllowed(k, jIndex) && validHorizontalJump(k, jIndex)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
         //diagonal jumps
         for (int jIndex : diagonalJumps) {
-            if (jumpAllowed(k, jIndex) && validDiagonal(jIndex, k)) {
+            if (jumpAllowed(k, jIndex) && validDiagonalJump(k, jIndex)) {
                 possibleJumps.add(Move.moveLinIndex(k, jIndex));
             }
         }
@@ -306,14 +311,15 @@ class Board extends Observable {
     }
 
     /** given 2 linearized index, return true if is valid horizontal move. **/
-    boolean validHorizontal(int from, int to) {
+    boolean validHorizontalJump(int from, int to) {
         return Math.abs(from % 5 - to % 5) == 2;
     }
     /** given 2 linearized index, return true if is valid diagonal move. **/
-    boolean validDiagonal(int from, int to) {
+    boolean validDiagonalJump(int from, int to) {
         boolean twoRowsAway = (Math.abs(from / 5 - to / 5) == 2);
         boolean twoColsAway = Math.abs(from % 5 - to % 5) == 2;
-        return twoRowsAway && twoColsAway;
+        boolean onDiagonalLine = (from % 2 == 0);
+        return twoRowsAway && twoColsAway && onDiagonalLine;
     }
 
     /** Return the color of the player who has the next move.  The
