@@ -84,7 +84,7 @@ public class MoreBoardTests {
 
 
     // Additional custom tests below //
-    @Ignore
+    @Test
     public void testJumpPossible() {
         Board b = getBoard();
         //initial state cannot jump
@@ -205,7 +205,7 @@ public class MoreBoardTests {
         String config1 = "wwbwww--ww--wwwb--bbbb-bb";
         b1.setPieces(config1, PieceColor.WHITE);
         assertTrue(b1.jumpPossible(14));
-        assertTrue(b1.jumpPossible(18));
+        assertFalse(b1.jumpPossible(18));
         assertFalse(b1.jumpPossible(1));
     }
 
@@ -215,7 +215,7 @@ public class MoreBoardTests {
         Board b1 = new Board();
         assertFalse(b1.jumpPossible());
         String config1 = "---w-w---w-wbw-w---w----w";
-        b1.setPieces(config1, PieceColor.WHITE);
+        b1.setPieces(config1, PieceColor.BLACK);
         b1.makeMoveHelper(Move.parseMove("c3-e3"));
         assertTrue(b1.jumpPossible(14));
     }

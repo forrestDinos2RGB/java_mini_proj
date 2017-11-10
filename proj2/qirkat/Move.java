@@ -122,12 +122,14 @@ class Move {
             move0._nextJump = move1;
             return move0;
         } else {
-            Move head = move0;
-            while (move0.jumpTail() != null) {
-                move0 = move0.jumpTail();
-            }
-            move0._nextJump = move1;
-            return head;
+            move0._nextJump = move(move0.jumpTail(), move1);
+            return move0;
+//            Move head = move0;
+//            while (move0.jumpTail() != null) {
+//                move0 = move0.jumpTail();
+//            }
+//            move0._nextJump = move1;
+//            return head;
         }
     }
 
