@@ -254,7 +254,7 @@ public class MoreBoardTests {
     @Test
     public void testGetJumpsHelper2() {
         Board b1 = new Board();
-        String config1 = "---w-w---w-wb--w---w----w";
+        String config1 = "---w-w---w-wbw-w---w----w";
         b1.setPieces(config1, PieceColor.BLACK);
         ArrayList<Move> expected = new ArrayList<>();
         expected.add(Move.parseMove("c3-a3-a1"));
@@ -294,7 +294,7 @@ public class MoreBoardTests {
         Board b1 = new Board();
         String config1 = "---w-w---w-wbw-w---w----w";
         b1.setPieces(config1, PieceColor.BLACK);
-        boolean actual = b1.checkJump(Move.parseMove("c3-a3"), true);
+        boolean actual = b1.checkJump(Move.parseMove("c3-a3-a1"), true);
         assertEquals(true, actual);
     }
 
@@ -305,6 +305,16 @@ public class MoreBoardTests {
         String config1 = "---w-w---w-wbw-w---w----w";
         b1.setPieces(config1, PieceColor.BLACK);
         boolean actual = b1.checkJump(Move.parseMove("c3-a3"), false);
+        assertEquals(false, actual);
+    }
+
+    @Test
+    /** test if tail jump has more jumps and allow partial is false. **/
+    public void testheckJump4() {
+        Board b1 = new Board();
+        String config1 = "-----------wb--w-----w-w-";
+        b1.setPieces(config1, PieceColor.BLACK);
+        boolean actual = b1.checkJump(Move.parseMove("c3-a3-a5-c5"), false);
         assertEquals(false, actual);
     }
 
@@ -331,8 +341,6 @@ public class MoreBoardTests {
         ArrayList<Move> actual = b1.getJumpsHelper(13, b1);
         assertTrue(actual.size() == 1);
         assertEquals(expected.toString(), actual.get(0).toString());
-
-
     }
 
 

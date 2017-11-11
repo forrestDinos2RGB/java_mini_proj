@@ -95,6 +95,7 @@ class Move {
         return move(col0, row0, col1, row1, null);
     }
 
+
     /** Return a vestigial Move consisting only of starting square
      *  COL0 ROW0. */
     static Move move(char col0, char row0) {
@@ -124,12 +125,9 @@ class Move {
         if (move0.jumpTail() == null) {
             return move(move0.col0(), move0.row0(),
                     move0.col1(), move0.row1(), move1);
-            //BAD CAT
-//            move0._nextJump = move1;
-//            return move0;
         } else {
-            move(move0.jumpTail(), move1);
-            return move0;
+            return move(move0.col0(), move0.row0(), move0.col1(),
+                    move0.row1(), move(move0.jumpTail(), move1));
         }
     }
 
@@ -150,6 +148,20 @@ class Move {
         return k;
     }
 
+//    /** returns true if is valid diagonal move. **/
+//    static boolean isValidDiagonalMove(int from, int to) {
+//        boolean oneRowAway = (Math.abs(from / 5 - to / 5) == 1);
+//        boolean oneColAway = Math.abs(from % 5 - to % 5) == 1;
+//        boolean onDiagonalLine = (from % 2 == 0);
+//        return oneRowAway && oneColAway && onDiagonalLine;
+//    }
+//
+//    /** returns true if is valid horizontal move. **/
+//    static boolean isValidHorizontalMove(int from, int to) {
+//
+//        return false;
+//    }
+
     /** Return the column letter of linearized index K. */
     static int col(int k) {
         return (char) (k % STEP_R + 'a');
@@ -160,27 +172,29 @@ class Move {
         return (char) (k / STEP_R + '1');
     }
 
-    /** Return true iff this is a forward move. */
-    boolean isForward() {
-        //FIXME
-        return false;
+    /** Return true iff this is a vertical Jump */
+    boolean isVerticalJump() {
+        boolean sameCol = col0() == col1();
+        boolean rowDiffByTwo = Math.abs(row0() - row1()) == 2;
+        return sameCol && rowDiffByTwo;
     }
-    /** Return true iff this is a backward move. */
-    boolean isBackward() {
-        //FIXME
-        return false;
+    /** Return true iff this is a backward jump. */
+    boolean isHorizontalJump() {
+        boolean sameRow = row0() == row1();
+        boolean colDiffByTwo = Math.abs(col0() - col1()) == 2;
+        return sameRow && colDiffByTwo;
     }
 
-    /** Return true iff this is a diagonal move. */
-    boolean isDiagonal() {
-        //FIXME
-        return false;
+    /** Return true iff this is a diagonal jump. */
+    boolean isDiagonalJump() {
+        boolean twoRowsAway = (Math.abs(fromIndex()/ 5 -  toIndex() / 5) == 2);
+        boolean twoColsAway = Math.abs(fromIndex() % 5 - toIndex() % 5) == 2;
+        return twoRowsAway && twoColsAway;
     }
 
     /** Return true iff a diagonal move is legal. **/
-    boolean diagonalIsLegal() {
-        //FIXME
-        return false;
+    boolean onDiagonalLine() {
+        return (fromIndex() % 2 == 0);
     }
 
     /** Return true iff this is a capturing move (a jump). */
@@ -197,14 +211,12 @@ class Move {
     /** Return true iff this is a horizontal, non-capturing move to
      *  the left. */
     boolean isLeftMove() {
-        //FIXME
         return ((col1() - col0()) == -1) && (row0() == row1());
     }
 
     /** Return true iff this is a horizontal, non-capturing move
      *  to the right. */
     boolean isRightMove() {
-        //FIXME
         return ((col1() - col0()) == 1) && (row0() == row1());
     }
 

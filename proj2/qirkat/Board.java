@@ -181,22 +181,61 @@ class Board extends Observable {
     /** Add all legal non-capturing moves from the position
      *  with linearized index K to MOVES. */
     private void getMoves(ArrayList<Move> moves, int k) {
-        // FIXME
+        MoveList uncheckedMoves = getMovesHelper(k);
+        for (Move uncheck : uncheckedMoves) {
+            if (legalMove(uncheck)) {
+                moves.add(uncheck);
+            }
+        }
+    }
+
+    /** returns possible non capturing moves depending on whoseMove. **/
+    private MoveList getMovesHelper(int k) {
+        MoveList allMoves = new MoveList();
+        int[] allMove = new int[5];
+        allMove[0] = k + 1;
+        allMove[1] = k - 1;
+        if (whoseMove() == WHITE) {
+            allMove[2] = k + 4;
+            allMove[3] = k + 5;
+            allMove[4] = k + 6;
+        } else {
+            allMove[2] = k - 4;
+            allMove[3] = k - 5;
+            allMove[4] = k - 6;
+        }
+        for (int moveIndex : allMove) {
+            allMoves.add(Move.moveLinIndex(k, moveIndex));
+        }
+        return allMoves;
+    }
+
+    /** returns true if move is allowed.
+     * If position moving to is empty &&
+     * If position moving from is your move
+     * If position moving to valid square */
+    private boolean moveAllowed(int from, int to) {
+        boolean oneRowAway = (Math.abs(from / 5 - to / 5) == 1);
+        boolean oneColAway = Math.abs(from % 5 - to % 5) == 1;
+        return get(to) == EMPTY && get(from) == whoseMove()
+                && validSquare(to);
     }
 
     /** Add all legal captures from the position with linearized index K
      *  to MOVES. */
     private void getJumps(ArrayList<Move> moves, int k) {
-        moves.addAll(getJumpsHelper(k, this));
+        MoveList uncheckedJumps = getJumpsHelper(k, this);
+        for (Move unchecked: uncheckedJumps) {
+            if (checkJump(unchecked, false)) {
+                moves.add(unchecked);
+            }
+        }
     }
 
     /** Return a list of all possible jumps given current board state,
      *   a fromIndex.
      */
     MoveList getJumpsHelper(int k, Board currState) {
-        System.out.println("************");
-        System.out.println(currState);
-        System.out.println("************");
         MoveList validJumps = new MoveList();
         if (currState.get(k) != currState.whoseMove()) {
             return validJumps;
@@ -215,36 +254,138 @@ class Board extends Observable {
                 validJumps.add(jump);
             }
             for (Move rest: restJumps) {
-                //This line is screwing things up
-                //jump is concatenated with every entry in the list
                 validJumps.add(Move.move(jump, rest));
             }
         }
         return validJumps;
     }
 
-    /** Return true iff MOV is a valid jump sequence on the current board.
-     *  MOV must be a jump or null.  If ALLOWPARTIAL, allow jumps that
-     *  could be continued and are valid as far as they go.  */
+    //TRIAL RUN ----------------------------------------
     boolean checkJump(Move mov, boolean allowPartial) {
-        if (!jumpAllowed(mov) || mov.isVestigial()) {
+        Board copy = new Board(this);
+        return checkJumpHelper(mov, copy, allowPartial);
+    }
+
+    boolean checkJumpHelper(Move mov, Board currBoard, boolean allowPartial) {
+        //base case 1
+        if (!currBoard.validSingleJump(mov)) {
             return false;
         }
-        while (mov.jumpTail() != null) {
-            mov = mov.jumpTail();
-            if (!jumpAllowed(mov) || mov.isVestigial()) {
-                return false;
+        //base case 2
+        if (mov.jumpTail() == null) {
+            currBoard.makeMoveHelper(mov);
+            boolean canJumpAtK = currBoard.jumpPossible(index(mov.col1(), mov.row1()));
+            if (allowPartial) {
+                return true;
+            } else {
+                if (allowPartial == false && canJumpAtK) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         }
-        if (allowPartial) {
-            return true;
+        //recursive case
+        //our friend will check the rest of the jump
+        Board copy = new Board(currBoard);
+        Move front = move(mov.col0(), mov.row0(), mov.col1(), mov.row1());
+        copy.makeMoveHelper(front);
+        return checkJumpHelper(mov.jumpTail(), copy, allowPartial);
+    }
+
+    boolean validSingleJump(Move mov) {
+        if (mov.isVestigial()) {
+            return false;
         }
-        Board copy = new Board(this);
-        copy.makeMoveHelper(mov);
-        if (copy.jumpPossible(index(mov.col1(), mov.row1()))) {
+        //checks for basic requirements
+        if (!jumpAllowed(mov)) {
+            return false;
+        }
+        boolean isHorizontal = mov.isHorizontalJump();
+        boolean isVertical = mov.isVerticalJump();
+        boolean isDiagonal = mov.isDiagonalJump();
+        //must be one of three types
+        if (!(isHorizontal || isVertical || isDiagonal)) {
+            return false;
+        }
+        //checks for diagonal line jump
+        if (isDiagonal && ! mov.onDiagonalLine()) {
             return false;
         }
         return true;
+    }
+    //TRIAL RUN ----------------------------------------
+//    /** Return true iff MOV is a valid jump sequence on the current board.
+//     *  MOV must be a jump or null.  If ALLOWPARTIAL, allow jumps that
+//     *  could be continued and are valid as far as they go.  */
+//    boolean checkJump(Move mov, boolean allowPartial) {
+//        if (!checkJumpHelper(mov, this)) {
+//            return false;
+//        }
+//        Move frontMove = mov;
+//        /** check each subsequent jumps to make sure is correct. **/
+//        Board copy = new Board(this);
+//        while (mov.jumpTail() != null) {
+//            copy = new Board(copy);
+//            //make fake move
+//            copy.makeMoveHelper(move(mov.col0(), mov.row0(), mov.col1(), mov.row1()));
+//            mov = mov.jumpTail();
+//            if (!checkJumpHelper(mov, copy)) {
+//                return false;
+//            }
+//        }
+//        copy = new Board(this);
+//        copy.makeMoveHelper(frontMove);
+//        if (!allowPartial && copy.jumpPossible(index(mov.col1(), mov.row1()))) {
+//            return false;
+//        }
+//        return true;
+//
+//    }
+//
+//    boolean checkJumpHelper(Move mov, Board currBoard) {
+//        if (mov.isVestigial()) {
+//            return false;
+//        }
+//        //checks for basic requirements
+//        if (!currBoard.jumpAllowed(mov)) {
+//            return false;
+//        }
+//        boolean isHorizontal = mov.isHorizontalJump();
+//        boolean isVertical = mov.isVerticalJump();
+//        boolean isDiagonal = mov.isDiagonalJump();
+//        //must be one of three types
+//        if (!(isHorizontal || isVertical || isDiagonal)) {
+//            return false;
+//        }
+//        //checks for diagonal line jump
+//        if (isDiagonal && ! mov.onDiagonalLine()) {
+//            return false;
+//        }
+//        return true;
+//    }
+
+    /** Return true if intended jump is aljlowed for MOVE. **/
+    boolean jumpAllowed(Move jump) {
+        return jumpAllowed(index(jump.col0(), jump.row0()), index(jump.col1(), jump.row1()));
+    }
+    /** Return true if intended jump is allowed for JUMPINDEX, FROMINDEX. **/
+    boolean jumpAllowed(int fromIndex, int jumpIndex) {
+        return (Move.validSquare(jumpIndex) &&
+                get((fromIndex + jumpIndex) / 2) == get(fromIndex).opposite() &&
+                get(jumpIndex) == EMPTY) && get(fromIndex) == whoseMove();
+    }
+
+    /** given 2 linearized index, return true if is valid horizontal move. **/
+    boolean validHorizontalJump(int from, int to) {
+        return Math.abs(from % 5 - to % 5) == 2;
+    }
+    /** given 2 linearized index, return true if is valid diagonal move. **/
+    boolean validDiagonalJump(int from, int to) {
+        boolean twoRowsAway = (Math.abs(from / 5 - to / 5) == 2);
+        boolean twoColsAway = Math.abs(from % 5 - to % 5) == 2;
+        boolean onDiagonalLine = (from % 2 == 0);
+        return twoRowsAway && twoColsAway && onDiagonalLine;
     }
 
     /** Return true iff a jump is possible from the current board. */
@@ -297,29 +438,6 @@ class Board extends Observable {
             }
         }
         return possibleJumps;
-    }
-
-    /** Return true if intended jump is allowed for MOVE. **/
-    boolean jumpAllowed(Move jump) {
-        return jumpAllowed(index(jump.col0(), jump.row0()), index(jump.col1(), jump.row1()));
-    }
-    /** Return true if intended jump is allowed for JUMPINDEX, FROMINDEX. **/
-    boolean jumpAllowed(int fromIndex, int jumpIndex) {
-        return (Move.validSquare(jumpIndex) &&
-                get((fromIndex + jumpIndex) / 2) == get(fromIndex).opposite() &&
-                get(jumpIndex) == EMPTY) && get(fromIndex) == whoseMove();
-    }
-
-    /** given 2 linearized index, return true if is valid horizontal move. **/
-    boolean validHorizontalJump(int from, int to) {
-        return Math.abs(from % 5 - to % 5) == 2;
-    }
-    /** given 2 linearized index, return true if is valid diagonal move. **/
-    boolean validDiagonalJump(int from, int to) {
-        boolean twoRowsAway = (Math.abs(from / 5 - to / 5) == 2);
-        boolean twoColsAway = Math.abs(from % 5 - to % 5) == 2;
-        boolean onDiagonalLine = (from % 2 == 0);
-        return twoRowsAway && twoColsAway && onDiagonalLine;
     }
 
     /** Return the color of the player who has the next move.  The
